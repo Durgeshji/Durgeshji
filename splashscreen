@@ -1,0 +1,40 @@
+import 'dart:async';
+import 'package:cloudwebtask/homepage.dart';
+import 'package:flutter/material.dart';
+
+
+class SpalashScreen extends StatefulWidget {
+  const SpalashScreen({Key? key}) : super(key: key);
+
+  @override
+  _SpalashScreenState createState() => _SpalashScreenState();
+}
+
+class _SpalashScreenState extends State<SpalashScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    Timer(Duration(seconds: 4),
+            ()=>Navigator.pushReplacement(context,
+            MaterialPageRoute(builder:
+                (context) =>
+                    foodcourtprofile()
+            )
+        )
+    );
+  }
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/hotpot.jpg"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: null /* add child content here */,
+      ),
+    );
+    }
+   }
