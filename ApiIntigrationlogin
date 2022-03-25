@@ -1,0 +1,216 @@
+* First Step Create loginrequest file in project 
+
+import 'package:flutter/material.dart';
+class loginrequest {
+  String email;
+  String password;
+  String device_token;
+  String fcm_token;
+  String device_type;
+
+loginrequest({
+    required this.email,
+    required this.password,
+    required this.device_token,
+    required this.fcm_token,
+    required this.device_type,  });
+
+  Map<String,dynamic> tojson() => {
+     'email':this.email,
+     'password':this.password,
+     'device_token': this.device_token,
+     'fcm_token': this.fcm_token,
+     'device_type': this.device_type};
+  }
+  
+ * Second Step Create loginresponse file in project( We Can also create response file in quicktype and paste in our project file)
+ 
+ import 'dart:convert';
+Loginresponse loginresponseFromJson(String str) => Loginresponse.fromJson(json.decode(str));
+String loginresponseToJson(Loginresponse data) => json.encode(data.toJson());
+
+class Loginresponse {
+  Loginresponse({
+    required this.status,
+    required this.message,
+  });
+
+bool status;
+  String message;
+  factory Loginresponse.fromJson(Map<String, dynamic> json) => Loginresponse(
+    status: json["status"],
+    message: json["message"],
+  );
+
+Map<String, dynamic> toJson() => {
+    "status": status,
+    "message": message,
+  };
+}
+
+
+* Third Step Create ApiService file in project(our url is in this file)
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:intigration_api/request/loginrequest.dart';
+import 'package:intigration_api/response/loginresponse.dart';
+
+class ApiService{
+  static const loginurl = "login url pase here";
+  Future<Loginresponse> login(loginrequest requestLogin)
+  async {
+    var responsData = await postAPI(path: loginurl, parameters: requestLogin.tojson());
+    var data = jsonDecode(responsData.body);
+    return Loginresponse.fromJson(data);
+  }
+ Future<http.Response> postAPI(
+      {required String path, required Map<String, dynamic> parameters}) async {
+    var url = Uri.parse(path);
+    print(path);
+    final result = await http.post(url,
+        headers: postHeaderWidoutToken(),
+        encoding: Encoding.getByName("utf-8"),
+        body: parameters);
+    print("statusCode => ${result.statusCode}");
+    print("Body Data => ${result.body}");
+    return result;
+  }
+  Map<String, String> postHeaderWidoutToken() => {
+    "X-CLIENT": "e0271afd8a3b8257af70deacee4",
+    "Accept": "application/json",
+    "Content-Type": "application/x-www-form-urlencoded",
+  };
+}
+
+* Four Step Create LoginPage file in project(in this we can perform operation on button click)
+import 'package:flutter/material.dart';
+import 'package:intigration_api/Api/ApiService.dart';
+import 'package:intigration_api/request/loginrequest.dart';
+import 'package:intigration_api/response/loginresponse.dart';
+
+class loginpage extends StatefulWidget {
+  const loginpage({Key? key}) : super(key: key);
+
+  @override
+  State<loginpage> createState() => _loginpageState();
+}
+
+class _loginpageState extends State<loginpage> {
+
+   bool isloading = false;
+   TextEditingController emailcontroller = TextEditingController();
+   TextEditingController passwordtext = TextEditingController();
+   late Loginresponse logresponse;
+
+   @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('LoginPage'),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.add_alert),
+           tooltip: 'Show Snackbar',
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('This is a snackbar')));
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.navigate_next),
+            tooltip: 'Go to the next page',
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute<void>(
+                builder: (BuildContext context) {
+                  return Scaffold(
+                    appBar: AppBar(
+                       title: const Text('Next page'),
+                    ),
+                     body: const Center(
+                       child: Text(
+                           'This is the next page',
+                         style: TextStyle(fontSize: 24),
+                      ),
+                      ),
+                    );
+                 },
+               ));
+            },
+           ),
+         ],
+       ),
+        body:Container(
+          child: Column(
+            children: [
+               Padding(
+                padding: EdgeInsets.only(left: 30,right: 30,top: 20,bottom: 10),
+                child: TextField(
+                  controller: emailcontroller,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter Email',
+                  ),
+                ),
+              ),
+
+              Padding(
+                padding: EdgeInsets.only(left: 30,right: 30,top: 20,bottom: 20),
+                child: TextField(
+                  controller: passwordtext,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter Password',
+                  ),
+                ),
+              ),
+
+              Container(
+                  height: 50,
+                  width: 200,
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  child: ElevatedButton(
+                    child: const Text('Login',style: TextStyle(fontSize: 30),),
+                    onPressed: () {
+
+                      login(context);
+                      print(emailcontroller.text);
+                      print(passwordtext.text);
+                    },
+                  )
+              ),
+            ],
+          ),
+           )
+        );
+      }
+
+      Future login(BuildContext context) async {
+        loginrequest request=loginrequest(email: emailcontroller.text, password: passwordtext.text, device_token: "123465", fcm_token: "123", device_type: "android");
+        logresponse = await ApiService().login(request);
+        if(logresponse.status==true){
+          isloading = false;
+          print(logresponse.status);
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => const skips()),
+          // );
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //       builder: (context) => loginwithnumber(
+          //           //token: myresponsesignup.data!.token.toString(),
+          //           )),
+          // );
+
+        }else{
+          isloading = true;
+        }
+      }
+   }
+
+
+
+
+
+  
