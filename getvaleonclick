@@ -1,0 +1,92 @@
+Navigator.push(
+             context,
+             MaterialPageRoute(builder: (context) => 
+                 CustomerProfile(token: logresponse.data!.userdata!.authToken.toString(),
+                   id:logresponse.data!.userdata!.id.toString(),)),
+
+);
+
+
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:intigration_api/Api/ApiService.dart';
+import 'package:intigration_api/request/customerprofilerequest.dart';
+import 'package:intigration_api/response/CustomerprofileResponse.dart';
+import 'package:toast/toast.dart';
+
+class CustomerProfile extends StatefulWidget {
+
+  String token;
+  String id;
+  CustomerProfile({Key? key,required this.token,required this.id}) : super(key: key);
+
+  @override
+  State<CustomerProfile> createState() => _CustomerProfileState();
+}
+
+
+class _CustomerProfileState extends State<CustomerProfile> {
+  bool isloading = false;
+   // _startLoading() {
+   //   setState(() {
+   //     isloading = true;
+   //   });
+   // Timer(const Duration(seconds: 5), () {
+    //   setState(() {
+    //     isloading = false;
+    //   });
+    // });
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    profile(context);
+    super.initState();
+    }
+  @override
+  Widget build(BuildContext context) {
+    return
+      Scaffold(
+      appBar: AppBar(
+          title:Text("Profile Data")
+      ),
+      body :
+      Center(
+          child: isloading ? Container(
+            child: CircularProgressIndicator(),
+          ) : Text(profileResponse.data!.userdata!.name.toString())
+      ),
+    );
+   }
+  late CustomerProfileResponse profileResponse;
+  Future profile(BuildContext context) async {
+    // CircularProgressIndicator();
+    setState(() {
+      CircularProgressIndicator();
+    });
+    print(widget.token);
+    CustomerprofileRequest request=CustomerprofileRequest(user_id: widget.id,auth_token: widget.token);
+    profileResponse = await ApiService().profiledata(request);
+    if(profileResponse.status==true){
+      isloading = false;
+      print(profileResponse.status);
+      Toast.show("Congratulaction  you are login", context, duration:
+      Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => const skips()),
+      // );
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //       builder: (context) => loginwithnumber(
+      //           //token: myresponsesignup.data!.token.toString(),
+      //           )),
+      //);
+    }else{
+      isloading = true;
+      }
+    }
+   }
