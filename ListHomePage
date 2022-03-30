@@ -1,0 +1,128 @@
+import 'package:demotool/Models/listrequest.dart';
+import 'package:demotool/Models/listresponse.dart';
+import 'package:demotool/Servious/api_manager.dart';
+import 'package:flutter/material.dart';
+
+class Homepage extends StatefulWidget {
+  const Homepage({Key? key}) : super(key: key);
+
+  @override
+  State<Homepage> createState() => _HomepageState();
+}
+
+class _HomepageState extends State<Homepage> {
+  bool isloading = false;
+  late Listresponse listresponse;
+  @override
+  void initState() {
+    super.initState();
+    datalist(context).whenComplete(() {
+      setState(() {});
+    });
+    //datalist(context);
+  }
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home:
+      Scaffold(
+        appBar: AppBar(
+          title: Text("GeeksforGeeks"),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.comment),
+              tooltip: 'Comment Icon',
+              onPressed: () {},
+            ), //IconButton
+            IconButton(
+              icon: Icon(Icons.settings),
+              tooltip: 'Setting Icon',
+              onPressed: () {},
+            ), //IconButton
+          ],
+          //<Widget>[]
+          backgroundColor: Colors.greenAccent[400],
+          elevation: 50.0,
+          leading: IconButton(
+            icon: Icon(Icons.menu),
+            tooltip: 'Menu Icon',
+            onPressed: () {},
+          ),
+          //IconButton
+          brightness: Brightness.dark,
+        ), //AppBar
+        body :  Column(
+
+          children: [
+            Container(
+              child: Center(
+                child: Text("ErrOr"),
+              ),
+            ),
+            isloading
+                ? SizedBox(height: 40, child: CircularProgressIndicator())
+                : ListView.builder(
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemBuilder: (context, i) {
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                        left: 20, right: 20, top: 20),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: InkWell(
+                          onTap: () async {
+
+                          },
+                          child: Column(
+                            crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                          listresponse
+                              .data!.merchantPData![i].name.toString(),
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 20),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+
+                            ],
+                          )),
+                    ),
+                  );
+                },
+                itemCount: listresponse
+                    .data!.merchantPData!.length)
+          ],
+        )
+    ),
+    )
+    ;
+  }
+  Future datalist(BuildContext context) async {
+    Listrequest listrequest=Listrequest(public_token: "HchSdLNIa91A9XARKZKZ3Ln0JKQnx2EZAW8l7x7NvTV", current_lat: "22.72905",
+       current_long: "75.8878",current_date: "2022-01-28",shop_name: "");
+    listresponse = await ApiService().getdata(listrequest);
+    if(listresponse.status==true){
+      isloading = false;
+      setState(() {
+      });
+      print(listresponse.status);
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //       builder: (context) => loginwithnumber(
+      //           //token: myresponsesignup.data!.token.toString(),
+      //           )),
+      //);
+    }else{
+     //CircularProgressIndicator.adaptive();
+      isloading = true;
+        }
+      }
+     }
+
