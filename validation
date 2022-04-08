@@ -1,0 +1,121 @@
+
+// validator: ValidationItem().passwordValidation,
+               //obscureText: true,
+class ValidationItem {
+  String? EmailVeledetion(val) {
+    print(val.trim());
+    var validemailadat = val.contains('@');
+    var isEmaildort = val.contains('.');
+    if (validemailadat == true && isEmaildort == true) {
+      var newvale = val.length;
+      var lveleded = val[newvale - 1].contains(RegExp(r'[a-z]'));
+      if (lveleded == true) {
+        return null;
+      } else {
+        return 'Please enter a valid email';
+      }
+    } else {
+      return 'Please enter a valid email';
+    }
+  }
+
+  String? validateMobile(value) {
+// Indian Mobile number are of 10 digit onlys
+    print(value);
+    if (value.isEmpty) {
+      return "Please enter password";
+    }
+    if (value.trim().length <= 5)
+      return 'Password should be more than or equal to 6 char';
+    else
+      return null;
+  }
+
+///////////
+
+  String? validationPhone(value) {
+// Indian Mobile number are of 10 digit onlys
+    print(value);
+    if (value.isEmpty) {
+      return "Please enter phone number";
+    }
+    // if (value.trim().length <= 9)
+    //   return 'Number  10 digit number';
+    else
+      return null;
+  }
+
+  String? validitionaddress(value) {
+//Indian Mobile number are of 10 digit onlys
+    print(value);
+    if (value.isEmpty) {
+      return "Please enter value";
+    }
+    // if (value.trim().length <= 9)
+    //   return 'Number  10 digit number';
+    else
+      return null;
+  }
+  String? checkEmptyValidator(String value) {
+    if (value.isEmpty) return 'Please provide this value';
+    return null;
+  }
+
+// Validation
+  String? passwordValidation(val) {
+    print(val);
+    if (val.isEmpty) {
+      return "Please provide this value";
+    } else if (val != val) {
+      return "please confirm your password";
+    } else {
+      return null;
+    }
+  }
+
+// Validation Name
+  String? nameValidation(val) {
+    print(val);
+
+    if (val.isEmpty) {
+      return "Please Enter Name";
+    }
+    if (val.trim().length < 2)
+      return 'Name should be greter than 2 char';
+    else
+      return null;
+  }
+}
+
+// confirm password
+
+String? confirmpasssord(value) {
+// Indian Mobile number are of 10 digit onlys
+  print(value);
+  if (value.isEmpty) {
+    return "Please enter password";
+  }
+  if (value.trim().length <= 5) {
+    return 'Password should be more than or equal to 6 char';
+  } else
+    return null;
+}
+
+//  empty
+String? checkEmpty(value) {
+  print(value);
+  if (value.isEmpty) return 'Please provide this value';
+  return null;
+}
+
+// Validation
+String? otpvalidation(val) {
+  print(val);
+  if (val.isEmpty) {
+    return "Please provide this value";
+  } else if (val != val) {
+    return "please confirm your password";
+  } else {
+    return null;
+  }
+}
