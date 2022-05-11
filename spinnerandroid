@@ -1,0 +1,101 @@
+implementation("com.squareup.okhttp3:okhttp:4.9.3")
+
+
+xml file
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    tools:context=".MainSpinner">
+
+
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+    </Spinner>
+
+</LinearLayout>
+
+
+mainfile
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import android.telecom.Call;
+import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+
+public class MainSpinner extends AppCompatActivity {
+    Spinner spinner;
+    List<String> usersList;
+    ArrayAdapter<String> catAdapter;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main_spinner);
+        spinner = (Spinner)findViewById(R.id.spinner);
+        usersList = new ArrayList<String>();
+
+        catAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, usersList);
+        spinner.setAdapter(catAdapter);
+
+        getHttpResponse();
+    }
+    public void getHttpResponse() {
+        String url = "https://cakeapi.trinitytuts.com/api/listuser";
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                final String mMessage = response.body().string();
+                MainSpinner.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.e("Response", mMessage);
+                        try {
+                            JSONObject users = new JSONObject(mMessage);
+                            JSONArray usersArr = users.getJSONArray("users");
+                            for(int i =0; i < usersArr.length(); i++){
+                                JSONObject user = usersArr.getJSONObject(i);
+                                Log.e("user", user.getString("username"));
+                                usersList.add(user.getString("username"));
+                            }
+                            catAdapter.notifyDataSetChanged();
+                        }catch (JSONException e) {
+                            e.printStackTrace();
+                        }}});
+            }
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+                String mMessage = e.getMessage().toString();
+                Log.w("failure Response", mMessage);
+                }
+             });
+            }
+          }
