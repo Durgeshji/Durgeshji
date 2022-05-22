@@ -1,0 +1,204 @@
+
+ xml file
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:background="#454545"
+    tools:context=".ListDialog">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="2"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:gravity="center"
+        android:id="@+id/llrelatioin"
+        android:background="@drawable/rounded_edittext"
+        >
+
+    <TextView
+        android:layout_width="0dp"
+        android:id="@+id/txtselectedview"
+        android:layout_height="wrap_content"
+        android:text="Relationship with Applicant"
+        android:layout_weight="1.8"
+        />
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Relationship with Applicant"
+        android:layout_weight=".2"
+        android:src="@drawable/expandmore_foreground"
+        />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10sp"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btnselectdate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+              android:text="Select Date"
+                android:padding="10dp"
+        />
+
+    </LinearLayout>
+</LinearLayout>
+
+java file
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.text.ParseException;
+import java.util.Calendar;
+
+public class ListDialog extends AppCompatActivity {
+    DatePickerDialog datePickerDialog;
+    int year;
+    int month;
+    int dayOfMonth;
+    Calendar calendar;
+
+
+    LinearLayout llrelatioin;
+    TextView txtselectedview;
+    Button btnselectdate;
+    String[] Company = {"Apple","Genpack","Microsoft","HP","HCL","Ericsson","Apple","Genpack","Microsoft","HP","HCL","Ericsson","Apple","Genpack","Microsoft","HP","HCL","Ericsson"};
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_list_dialog);
+        llrelatioin=(LinearLayout) findViewById(R.id.llrelatioin);
+        txtselectedview=(TextView)findViewById(R.id.txtselectedview);
+        btnselectdate=(Button)findViewById(R.id.btnselectdate);
+        btnselectdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                calendar = Calendar.getInstance();
+                year = calendar.get(Calendar.YEAR);
+                month = calendar.get(Calendar.MONTH);
+                dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
+                datePickerDialog = new DatePickerDialog(ListDialog.this,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                                txtselectedview.setText(day + "/" + (month + 1) + "/" + year);
+                            }
+                        }, year, month, dayOfMonth);
+                datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+                //datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+                datePickerDialog.show();
+                datePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE,
+                        "cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (which == DialogInterface.BUTTON_NEGATIVE) {
+                                    dialog.cancel();
+                                    Toast.makeText(ListDialog.this, "Select Cancel", Toast.LENGTH_SHORT).show();
+                                } }});
+                datePickerDialog.setButton(DialogInterface.BUTTON_POSITIVE,
+                        "OK", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                if (which == DialogInterface.BUTTON_POSITIVE) {
+                                    DatePicker datePicker = datePickerDialog.getDatePicker();
+                                    int month=datePicker.getMonth()+1;
+                                    int checkminoryaer=year-18;
+                                    if(checkminoryaer<datePicker.getYear()){
+                                        Toast.makeText(ListDialog.this, "Select durgesh", Toast.LENGTH_SHORT).show();
+                                        txtselectedview.setText(datePicker.getYear() +"/"+ month
+                                                +"/"+datePicker.getDayOfMonth());
+                                    }else{
+                                        Toast.makeText(ListDialog.this, "Select durgeshchoudhary", Toast.LENGTH_SHORT).show();
+                                        txtselectedview.setText("Select Correct date");
+                                    } } }}); }});
+        llrelatioin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               // Toast.makeText(ListDialog.this, "click", Toast.LENGTH_SHORT).show();
+                LayoutInflater layoutInflater = (LayoutInflater)getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+                View popupView = layoutInflater.inflate(R.layout.dialogview, null);
+                final PopupWindow popupWindow = new PopupWindow(popupView, RecyclerView.LayoutParams.WRAP_CONTENT, RecyclerView.LayoutParams.WRAP_CONTENT);
+                ListView listView=(ListView) popupView.findViewById(R.id.listviewspop);
+                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(ListDialog.this, android.R.layout.simple_list_item_1, android.R.id.text1, Company);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                listView.setAdapter(adapter);
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        String value=adapter.getItem(position);
+                        txtselectedview.setText(value);
+                        popupWindow.dismiss(); }
+                });
+                popupWindow.showAsDropDown(llrelatioin, 50, -30);
+            }
+        });
+      }}
+      
+      dialog view file
+      
+      <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    android:gravity="center"
+    android:orientation="vertical" >
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="400dp"
+        android:layout_margin="1dp"
+        android:padding="10dp"
+        android:background="@drawable/rounded_edittext"
+        android:orientation="vertical" >
+        >
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:orientation="vertical" >
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Select your comapny"
+                android:textSize="25dp"
+                android:textColor="#000"
+                />
+
+            <ListView
+                android:id="@+id/listviewspop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
+      
