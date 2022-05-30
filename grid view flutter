@@ -1,0 +1,114 @@
+import 'package:flutter/material.dart';
+
+class gridview extends StatefulWidget {
+  const gridview({Key? key}) : super(key: key);
+
+  @override
+  State<gridview> createState() => _gridviewState();
+}
+
+class _gridviewState extends State<gridview> {
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text("Durgesh"),
+
+        ),
+        body:Container(
+             padding: EdgeInsets.all(12.0),
+             child: GridView.builder(
+               itemCount: 10,
+               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                   crossAxisCount: 2,
+                   crossAxisSpacing: 2.0,
+                   mainAxisSpacing: 4.0,
+                   childAspectRatio: 1.0,
+                   mainAxisExtent:180,
+
+               ),
+                itemBuilder: (BuildContext context, int index){
+                 return Card(
+                   child: Container(
+                     //height: 300,
+                     decoration: BoxDecoration(
+                         borderRadius: BorderRadius.circular(40)),
+                     margin: EdgeInsets.all(5),
+                     padding: EdgeInsets.all(5),
+                     child: Stack(
+                       children: [
+                         Column(
+                           crossAxisAlignment: CrossAxisAlignment.stretch,
+                           children: [
+                             SizedBox(height: 15),
+                            Row(
+                               children: [
+                                 Text('Client Code :',style: TextStyle(fontSize: 10),),
+                                 SizedBox(width: 4),
+                                 Text('123456',style: TextStyle(fontSize: 10),),
+                               ],
+                            ),
+                             SizedBox(height: 12),
+                             const Text(
+                               'Sunil Tiwari',
+                               style: TextStyle(fontSize: 10,),),
+                             SizedBox(height: 6),
+                             Row(
+                               children: [
+                                 Text('Mobile No:',style: TextStyle(fontSize: 10),),
+                                 SizedBox(width: 4),
+                                 Text('9632587410',style: TextStyle(fontSize: 10),),
+                               ],
+                             ),
+                             SizedBox(height: 6),
+                             Row(
+                               children: const [
+                                 Text('Status',style: TextStyle(fontSize: 10),),
+                                 SizedBox(width: 4),
+                                 Text('In progress',style: TextStyle(fontSize: 10),),
+                               ],
+                             ),
+                             SizedBox(height: 4),
+                             Container(
+                               margin: const EdgeInsets.all(2.0),
+                               padding: const EdgeInsets.all(2.0),
+                               decoration: BoxDecoration(border: Border.all(width: 2, color: Colors.black),color: Colors.red,), //             <--- BoxDecoration here
+                               child: const Text(" IPV Not Done", style: TextStyle(fontSize: 10.0,color: Colors.black,fontWeight: FontWeight.bold),
+                             ),
+                             ),
+                             SizedBox(height: 6),
+                             Container(
+                               margin: EdgeInsets.all(2.0),
+                               padding: EdgeInsets.all(2.0),
+                               alignment: Alignment.center,
+                               decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                        colors: [Colors.greenAccent, Colors.blueAccent],
+                                        begin: Alignment.bottomLeft,
+                                        end: Alignment.topRight ,),
+                                  // color: Colors.greenAccent,
+                                   border: Border.all(
+                                       color: Colors.black54, // Set border color
+                                       width: 2.0),   // Set border width
+                                   borderRadius: BorderRadius.all(Radius.circular(10.0)), // Set rounded corner radius
+                                   boxShadow: [BoxShadow(blurRadius: 10,color: Colors.black,offset: Offset(1,2))] // Make rounded corner of border
+                               ),
+                               child: Text("View Detail",style: TextStyle(fontSize: 10,fontWeight: FontWeight.bold)),
+                             )
+
+                           ],
+                         ),
+                       ],
+                     ),
+                   ),
+                 );
+                 },
+             )
+             ),
+           ),
+         );
+        }
+      }
