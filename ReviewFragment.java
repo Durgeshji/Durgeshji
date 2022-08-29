@@ -47,6 +47,7 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.tabs.TabLayout;
@@ -169,6 +170,7 @@ import javax.net.ssl.X509TrustManager;
 
 import cc.cloudist.acplibrary.ACProgressConstant;
 import cc.cloudist.acplibrary.ACProgressFlower;
+import es.dmoral.toasty.Toasty;
 import hari.bounceview.BounceView;
 import id.zelory.compressor.Compressor;
 import io.reactivex.schedulers.Schedulers;
@@ -188,6 +190,7 @@ import swastika.rm.app.model.userDocuments;
 import swastika.rm.app.modification.ModificationFieldModle;
 import swastika.rm.app.modification.ModificationFieldScreenActivity;
 import swastika.rm.app.modification.ModificationFirstScreen;
+import swastika.rm.app.modification.Nominee_Modification;
 import swastika.rm.app.network.VolleyMultipartRequest;
 import swastika.rm.app.network.getResponse;
 import swastika.rm.app.presentation.AccountOpeningFormActivity;
@@ -230,7 +233,7 @@ public class ReviewFragment extends Fragment {
     public String Cash_intraday_COMPANY_CODE = "";
 
     JSONArray NSE_CASH_INTRADAY_BrokerageDetail = null;
-
+    boolean checknominee=false;
     RecyclerCustomAdapter_Delivery stringArrayAdapter_brokerage_Delivery;
     RecyclerCustomAdapter_Intraday stringArrayAdapter_brokerage_Intraday;
     RecyclerCustomAdapter_DerivativeOption stringArrayAdapter_DerivativeOption;
@@ -288,7 +291,7 @@ public class ReviewFragment extends Fragment {
     public String commodity_derivatives_options_MODULE_NO = "1119";
     public String commodity_derivatives_options_COMPANY_CODE = "";
 
-
+    String nomineeId1="",nomineeId2="",nomineeId3="";
     LinearLayout client_code_section, client_code_editable_section, main_nominee_layoutsss;
     TextView userClientCode_edt_lable, userClientCode_edt, userClientCode_pencil, userClientCode_Submit;
     EditText userClientCode_edtitext;
@@ -302,6 +305,7 @@ public class ReviewFragment extends Fragment {
     File chequeFileOne, chequeFileTwo, bankStatementFile;
     String DocumentType = "";
     String titleDoc;
+
     String bankStatementDocUrl, chequeOneDocUrl, chequeTwoDocUrl, eKycId, customerId, additionalDetailsId, additionalDetailsIdd, loanAmount, loanTenurePeriod, pdc_udc_number,
             chequeNumberFirst, bankNumberFirst, branchFirst, chequeNumberSecond, bankNumberSecond, branchSecond;
     boolean eMudhraSignature;
@@ -321,7 +325,7 @@ public class ReviewFragment extends Fragment {
     private ProgressDialog File_download_dialog;
     private String customerName;
     private String newCustomerFullName;
-    ////////////////////////////////////////////
+
     private static final int MEGABYTE = 1024 * 1024;
     public static boolean documentUploaded = false;
     public static int REQUEST_CODE_DOC = 4567;
@@ -356,7 +360,8 @@ public class ReviewFragment extends Fragment {
     SwitchCompat minorToggle, minorToggle_new, minorToggle_news;
     LinearLayout subBroker_form_layout, getLoanDetailLayout,
             nominee_input_box, nominee_input_box_new, incomeDocLayout,
-            nominee_address_different, nominee_address_different_new, lMainGardian, lMainGardian_new, llSuporttivedoc, nominee_address_different_news;
+            nominee_address_different, nominee_address_different_new, lMainGardian, lMainGardian_new, llSuporttivedoc,
+            nominee_address_different_news,nominee_address_different_news2,nominee_address_different_news3;
     TextView submit_btn_additional_detail, brokTxt, brokrafeNotes, mobileLinkText, howToLonkTextView;
     String brpkrageDescription = "", VideoUrl = "", VideoExtension = "", MainEmail = "";
     RadioGroup declare_mobile_number_belong_to,
@@ -451,6 +456,8 @@ public class ReviewFragment extends Fragment {
             guardian_saving_bank_account_new,
             guardian_demat_account,
             guardian_demat_account_new;
+
+    TextView document_typeNominee_1,document_typeNominee_2,document_typeNominee_3,document_typeNomineeGurdian_1,document_typeNomineeGurdian_2,document_typeNomineeGurdian_3;
 
     EditText past_action_specification_edt, stock_broker_name,
             sub_broker_name_edt,
@@ -595,7 +602,7 @@ public class ReviewFragment extends Fragment {
             ChequeNoSecondtLayout, etBankLayoutSecond, BranchSecondLayout;
     EditText etChequeNoFirst, etBankFirst, etBranchFirst, etChequeFirst, etLoanAmount, etLoanTenurePeriod, etBankSecond, etBranchSecond, etchequeSecond;
     Boolean factaBottomOpen = false, pastActionBottomOpen = false,gurdiansaddressselcted=false,gurdiansaddressselcted_ofsecondnominee=false,
-            gurdianaddress_ofsecondnominee=false,secondn_Nominee_Address=false,third_Nominee_Address=false,
+            gurdianaddress_ofsecondnominee=false,secondn_Nominee_Address=false,first_Nominee_Address=false,third_Nominee_Address=false,
 
     authorisedBottomOpen = false, standingInsturtionOpen = false,
             getLoanBottom = false,
@@ -636,9 +643,10 @@ public class ReviewFragment extends Fragment {
     File Nominee_First,Nominee_Second,Nominee_Third;
     File no_imagefile;
     File Guardian_First,Guardian_Second,Guardian_Third;
+    boolean isnomineereadable1,isnomineereadable2,isnomineereadable3;
 
     boolean checkcount=true;
-    ImageView cancelnomineelayout3,cancelnomineelayout2;
+    ImageView cancelnomineelayout3,cancelnomineelayout2,cancelnomineelayout1;
     LinearLayout discountBrokerage, premiumBrokerage, nominee_layoutone, nominee_layouttwo, nominee_layoutthree;
     LinearLayout viewBrockrageReview, identificationproof,gurdianidentificationdocument,Second_gurdianidentificationdocument,identificationproof_of_secondnomine,
             identificationproof_of_thirdnomine, pancardlinearlayout,gurdianidentificationdocument_thirdnominee;
@@ -659,17 +667,32 @@ public class ReviewFragment extends Fragment {
     RequestQueue requestQueue;
     boolean isAllFieldsChecked_of_secondNominee=false,secondnominegurdiancheck=false;
     boolean isAllFieldsChecked_of_thirdNominee=false,thirdnominegurdiancheck=false;
-
+    String times;
+    String inputFormat ;
+    String OutPutFormat ;
+    String convertedDate;
+    String is_nominee="";
+    String AddressSameAsAccountHolder="";
+    String GuardianAddressSameAsAccountHolder="";
     boolean isGurdianValidation=false;
     private boolean IsEmailExisting = false;
     public static String[] cityArray;
+    String formate1="";
+    String formate2="";
+    String convertedDate1 = "";
+    TextWatcher tw ;
+
+    private Calendar cal = Calendar.getInstance();
+    boolean exist_nomineimage1=false,exist_nomineimage2=false,exist_nomineimage3=false,exist_gurdianimage1=false,
+            exist_gurdianimage2=false,exist_gurdianimage3=false;
     public static FragmentActivity activity_frag;
+    LinearLayout gurdian_address1,gurdian_address2,gurdian_address3;
     boolean nomineeImage_first=false,nomineeGurdianImage_first=false,nomineeGurdianImage_second=false,nomineeGurdianImage_third=false,nomineeImage_second=false,nomineeImage_third=false;
     public static String selectedStateName = "";
     ImageView nominee_oneImageview,gurdian_imageview,gurdian_imageviewthird,gurdian_Second_imageview,second_nominee_image,Third_nominee_image;
     String[] selectrelationlist = {"Father", "Mother", "Wife", "Son", "Daughter", "Brother", "Sister", "other"};
     String DOB1,DOB2,DOB3,GurdianDOB1,GurdianDOB2,GurdianDOB3;
-
+    String[] selectrelationlistof_document = {"Aadhar Card", "PAN", "Bank Account", "Other"};
     @Override
     public void onStop() {
         super.onStop();
@@ -683,14 +706,12 @@ public class ReviewFragment extends Fragment {
                     // Code for button 1 click
 
                     MainHomeActivity.moveToSectionEdit(0, 1);
-
                     break;
 
                 case R.id.userDOBText:
                     // Code for button 2 click
 
                     MainHomeActivity.moveToSectionEdit(0, 1);
-
                     break;
 
                 case R.id.userNameText:
@@ -719,19 +740,16 @@ public class ReviewFragment extends Fragment {
                     userClientCode_edtitext.setFilters(fArray);
                     userClientCode_edtitext.setText(userClientCode_edt.getText().toString());
                     userClientCode_edtitext.requestFocus();
-
                     break;
 
                 case R.id.userClientCode_Submit:
                     // Code for button 3 click
 
                     savecliencode();
-
                     break;
                 case R.id.userMNameText:
                     // Code for button 3 click
                     MainHomeActivity.moveToSectionEdit(1, 0);
-
                     break;
                 case R.id.userAddressText:
                     // Code for button 3 click
@@ -826,10 +844,7 @@ public class ReviewFragment extends Fragment {
                 case R.id.userVarificationText:
                     MainHomeActivity.moveToSectionEdit(4, 0);
                     break;
-            }
-
-        }
-    };
+            }}};
     private BroadcastReceiver ReceivefromService = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1239,11 +1254,10 @@ public class ReviewFragment extends Fragment {
                                                 .getAsBitmap(new BitmapRequestListener() {
                                                     @Override
                                                     public void onResponse(Bitmap bitmap) {
-                                                        // do anything with bitmap
+                                                        //do anything with bitmap
                                                         additionalImageone.setImageBitmap(bitmap);
                                                         llSuporttivedoc.setVisibility(View.VISIBLE);
                                                     }
-
                                                     @Override
                                                     public void onError(ANError error) {
                                                         // handle error
@@ -1259,9 +1273,8 @@ public class ReviewFragment extends Fragment {
                                         llSuporttivedoc.setVisibility(View.VISIBLE);
                                     }
 
-                                } else if (docObj.getString("documentType").equals("AdditionalDocument2")) {
-
-                                    if (!docObj.getString("documentUrl").contains(".pdf")) {
+                                }else if (docObj.getString("documentType").equals("AdditionalDocument2")) {
+                                    if(!docObj.getString("documentUrl").contains(".pdf")) {
                                         ImgStrAdditional2 = docObj.getString("documentBaseUrl") + docObj.getString("documentUrl");
                                         AndroidNetworking.get(docObj.getString("documentBaseUrl") + docObj.getString("documentUrl"))
                                                 .setTag("AdditionalDocument2")
@@ -1786,19 +1799,17 @@ public class ReviewFragment extends Fragment {
 
                 }
 
-            } else if (Method.equals("EkycAddressDetails")) {
+            } else if(Method.equals("EkycAddressDetails")) {
 
                 ProgressDialog progressdialog = new ProgressDialog(getActivity());
                 progressdialog.setMessage("Please Wait....");
                 progressdialog.show();
                 try {
-
                     JSONObject mainObj = new JSONObject(Data);
                     Log.e("REVIEW_AMAN>>>", Data + "");
                     Log.e("Method_aman", Method + "");
                     String satus = mainObj.getString("status");
-
-                    if (satus.equals("success")) {
+                    if(satus.equals("success")) {
                         progressdialog.dismiss();
                         JSONObject dataObj = mainObj.getJSONObject("data");
                         AppInfo.CUSTOMERID = dataObj.getString("customerId");
@@ -1811,10 +1822,8 @@ public class ReviewFragment extends Fragment {
                         addone.setText(dataObj.getString("address1"));
                         addtwo.setText(dataObj.getString("address2"));
                         addthree.setText(dataObj.getString("address3"));
-                        addcity.setText(dataObj.getString("city"));
                         addstate.setText(dataObj.getString("statename"));
-
-
+                        addcity.setText(dataObj.getString("city"));
                         if(gurdiansaddressselcted){
                             editgurdianpincode.setText(dataObj.getString("pincode"));
                             edt_gurdianaddress_one.setText(dataObj.getString("address1"));
@@ -1899,9 +1908,6 @@ public class ReviewFragment extends Fragment {
                             addcity2.setText("");
                             addstate2.setText("");
                         }
-
-
-
                     }else{
                         addpincode.setText("");
                         addone.setText("");
@@ -1909,26 +1915,19 @@ public class ReviewFragment extends Fragment {
                         addthree.setText("");
                         addcity.setText("");
                         addstate.setText("");
-
                     }
-
                 }catch (JSONException ex) {
                     Log.e("detailErr", ex.getMessage());
                     System.out.println("EkycAddressDetails : " + " detailErr " + ex.getMessage());
                 }
                 System.out.println("EkycAddressDetails : " + " in finish ");
                 GetDocumentsByEkycId(getActivity());
-
-
-            } else if (Method.equals("setAaadharLinkedStatus")) {
+            }else if(Method.equals("setAaadharLinkedStatus")) {
                 try{
                     JSONObject mainObj = new JSONObject(Data);
                     String satus = mainObj.getString("status");
-
-                    if (satus.equals("success")) {
+                    if(satus.equals("success")) {
                         isAadharLinkedOrNot = isAadharLinked.equals("1");
-//                        isAadharLinkedOrNot = true;
-
                         String xml = "<Esign \n" +
                                 "ver\n" +
                                 "=\"2.1\" \n" +
@@ -1975,77 +1974,48 @@ public class ReviewFragment extends Fragment {
                             aadhar_not_linked.setVisibility(View.VISIBLE);
                             //additional_doc.setVisibility(View.GONE);
                             reviewWebView.setVisibility(View.GONE);
-
                         }
-
-                    } else {
+                    }else{
 
                         ShowMessage.showErrorMessage(mainObj.getString("message"),
                                 activity);
-
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-
-            } else if (Method.equals("updateLoanDetails")) {
-
-                try {
-
-
+            }else if(Method.equals("updateLoanDetails")) {
+                try{
                     getLoanDetails(AppInfo.ekycApplicationId);
-
                     JSONObject mainObj = new JSONObject(Data);
                     String satus = mainObj.getString("status");
-
                     getLoan_d_bottom.setVisibility(View.GONE);
-
-
-                    if (getLoan_d_bottom.getVisibility() == View.VISIBLE) {
+                    if(getLoan_d_bottom.getVisibility() == View.VISIBLE) {
                         submit_btn_additional_detail.setVisibility(View.GONE);
-                    } else {
+                    }else{
                         submit_btn_additional_detail.setVisibility(View.VISIBLE);
                     }
-
-
-                    if (satus.equals("success")) {
-
-
-                    } else {
-
+                    if(satus.equals("success")) {
+                    }else{
                         getLoan_d_bottom.setVisibility(View.GONE);
-
-                        if (getLoan_d_bottom.getVisibility() == View.VISIBLE) {
+                        if(getLoan_d_bottom.getVisibility() == View.VISIBLE) {
                             submit_btn_additional_detail.setVisibility(View.GONE);
-                        } else {
+                        }else{
                             submit_btn_additional_detail.setVisibility(View.VISIBLE);
                         }
-
-                        ShowMessage.showErrorMessage(mainObj.getString("message"),
-                                getActivity());
-
+                        ShowMessage.showErrorMessage(mainObj.getString("message"), getActivity());
                     }
-                } catch (JSONException e) {
+                }catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-
-            } else if (Method.equals("BrokerageDocument")) {
-
+            }else if (Method.equals("BrokerageDocument")) {
                 try {
                     JSONObject mainObj = new JSONObject(Data);
                     String satus = mainObj.getString("status");
                     brokrafeNotes.setText(brpkrageDescription);
                 } catch (JSONException ex) {
-
                 }
-
-
-            } else if (Method.equals("GetLoanDetails")) {
+            }else if (Method.equals("GetLoanDetails")) {
                 try {
-
-
                     if (acProgressFlower != null) {
                         if (acProgressFlower.isShowing()) {
                             acProgressFlower.dismiss();
@@ -2062,7 +2032,6 @@ public class ReviewFragment extends Fragment {
                     } else {
                         loanAmount = mainObj.getString("LoanAmount");
                     }
-
                     loanTenurePeriod = mainObj.getString("LoanTenurePeriod");
                     pdc_udc_number = mainObj.getString("PDC_UDC_Number");
                     chequeNumberFirst = mainObj.getString("ChequeNo_first");
@@ -2074,45 +2043,31 @@ public class ReviewFragment extends Fragment {
                     bankStatementDocUrl = mainObj.getString("Path_GetLoan_Bank_Statement");
                     chequeOneDocUrl = mainObj.getString("Path_GetLoan_Cheque1");
                     chequeTwoDocUrl = mainObj.getString("Path_GetLoan_Cheque2");
-
-                    // getLoanDetailsButtonvalidation();
-
-                    if (loanAmount != null || !loanAmount.equals("")) {
+                    if(loanAmount != null || !loanAmount.equals("")) {
                         etLoanAmount.setText(loanAmount + "");
                     } else {
                         etLoanAmount.setText("");
                     }
-
-
-                    if (loanTenurePeriod != null) {
+                    if(loanTenurePeriod != null) {
                         etLoanTenurePeriod.setText(loanTenurePeriod + "");
-                    } else {
+                    }else {
                         etLoanTenurePeriod.setText("");
                     }
-
-                    if (chequeNumberFirst != null) {
+                    if(chequeNumberFirst != null) {
                         etChequeFirst.setText(chequeNumberFirst + "");
                     } else {
                         etChequeFirst.setText("");
                     }
-
-                    if (chequeNumberSecond != null) {
+                    if(chequeNumberSecond != null) {
                         etchequeSecond.setText(chequeNumberSecond + "");
-                    } else {
+                    }else {
                         etchequeSecond.setText("");
                     }
-
-                    if (bankNumberFirst.equals("")) {
+                    if(bankNumberFirst.equals("")) {
                         etBankFirst.setText("");
                     } else {
                         etBankFirst.setText(bankNumberFirst + "");
                     }
-//                    if (bankNumberFirst != null) {
-//                        etBankFirst.setText(bankNumberFirst + "");
-//                    } else {
-//                        etBankFirst.setText("");
-//                    }
-
                     if (bankNumberSecond != null) {
                         etBankSecond.setText(bankNumberSecond + "");
                     } else {
@@ -2237,9 +2192,7 @@ public class ReviewFragment extends Fragment {
                                                 uploadCheque2Box2ImageTwo.setImageBitmap(bitmap);
                                                 getLoanDetailsButtonvalidation();
 
-
                                             }
-
                                             @Override
                                             public void onError(ANError error) {
                                                 isChequeTwoUploaded = false;
@@ -2314,31 +2267,20 @@ public class ReviewFragment extends Fragment {
 
                     JSONObject mainObj = new JSONObject(Data);
                     if (mainObj.getString("Status").equals("Success")) {
-
                         JSONArray postOffice = mainObj.getJSONArray("PostOffice");
-
                         if (postOffice.length() > 0) {
-
                             JSONObject cityObject = postOffice.getJSONObject(0);
-
                             String cityName = cityObject.getString("District");
                             String stateName = cityObject.getString("State");
                             userCityEditText.setText(cityName);
                             userStateEditText.setText(stateName);
                             userCityEditText.setEnabled(false);
                             userStateEditText.setEnabled(false);
-
                         }
-
-                    } else {
-
+                    }else{
                         ShowMessage.showErrorMessage(mainObj.optString("message"),
                                 getActivity());
-
-
                     }
-
-
                 } catch (JSONException ex) {
 
                 }
@@ -2349,43 +2291,23 @@ public class ReviewFragment extends Fragment {
 
                         if (mainObj.getString("status").equals("success")) {
                             String Equity_url = mainObj.getString("data");
-
-                            // This code will execute if file will download
-                            // From the server end
-                            // without compression
                             download(Equity_url);
-                        }
-                    }
-
-                } catch (JSONException ex) {
-
-
+                        }}
+                }catch(JSONException ex) {
                 }
-
-
-            } else if (Method.equals("fillEquityFormforPhysical")) {
-
+            }else if (Method.equals("fillEquityFormforPhysical")) {
                 try {
-
                     JSONObject mainObj = new JSONObject(Data);
                     if (mainObj.has("status")) {
-
-                        if (mainObj.getString("status").equals("success")) {
-
+                        if(mainObj.getString("status").equals("success")) {
                             String Equity_url = mainObj.getString("data");
                             progressDialog = new ProgressDialog(getActivity());
                             progressDialog.setMessage("Downloading Application...");
                             progressDialog.show();
                             progressDialog.setCancelable(false);
-                            // This code will execute if file will download
-                            // From the server end
-                            // without compression
                             download_forPhysicalDoc(Equity_url);
-                        }
-                    }
-
-                }catch (JSONException ex) {
-
+                        } }
+                }catch(JSONException ex) {
                 }
             }else if (Method.equals("callAddtionalData")) {
                 try{
@@ -2393,33 +2315,25 @@ public class ReviewFragment extends Fragment {
                     System.out.println("ADDITIONALDATAdurgesh" + mainObj.toString());
                     if (mainObj.has("status")) {
                         if (mainObj.getString("status").equals("success")) {
-                            System.out.println("ADDITIONALDATA" + mainObj.toString());
+                            System.out.println("datafromgetapi" + mainObj.toString());
                             JSONObject dataob = mainObj.getJSONObject("data");
-
                             String FATCA_IsUsPerson = dataob.optString("FATCA_IsUsPerson");
                             String FATCA_TaxResidence = dataob.optString("FATCA_TaxResidence");
                             String FATCA_CountryOfCitizenship = dataob.optString("FATCA_CountryOfCitizenship");
-                            Toast.makeText(getActivity(), "durgehdata1", Toast.LENGTH_LONG).show();
-                            if (FATCA_IsUsPerson.equals("No")) {
+                            if(FATCA_IsUsPerson.equals("No")) {
                                 is_a_us_person_YES.setChecked(false);
                                 is_a_us_person_NO.setChecked(true);
-
                             }else{
                                 is_a_us_person_YES.setChecked(true);
                                 is_a_us_person_NO.setChecked(false);
                             }
                             if(FATCA_TaxResidence.equals("India")) {
-
                                 specify_country_residence_INDIA.setChecked(true);
                                 specify_country_residence_OTHER.setChecked(false);
-
                             }else{
-
                                 specify_country_residence_INDIA.setChecked(false);
                                 specify_country_residence_OTHER.setChecked(true);
-
                             }
-
                             if(FATCA_CountryOfCitizenship.equals("India")) {
                                 specify_country_citizenhip_INDIA.setChecked(true);
                                 specify_country_citizenhip_OTHER.setChecked(false);
@@ -2433,10 +2347,9 @@ public class ReviewFragment extends Fragment {
                             if (PAST_ActionsTaken.equals("No")) {
                                 past_actions_NO.setChecked(true);
                                 past_actions_YES.setChecked(false);
-                            } else {
+                            }else{
                                 past_actions_NO.setChecked(false);
                                 past_actions_YES.setChecked(true);
-
                                 past_action_specification_edt.setText(PAST_ActionsTakenValue);
                             }
 
@@ -2511,12 +2424,10 @@ public class ReviewFragment extends Fragment {
                             if (SI_ReceiveAnnualReport.equals("Electronically")) {
                                 recieve_annual_report_electronically.setChecked(true);
                             } else if (SI_ReceiveAnnualReport.equals("Physically")) {
-
                                 recieve_annual_report_physically.setChecked(true);
-                            } else {
+                            }else {
                                 recieve_annual_report_both.setChecked(true);
                             }
-
 
                             String SI_ReceiveDPAccountsStatement = dataob.optString("SI_ReceiveDPAccountsStatement");
                             if (SI_ReceiveDPAccountsStatement.equals("As per SEBI regulation")) {
@@ -2530,183 +2441,515 @@ public class ReviewFragment extends Fragment {
                                 receive_DP_accounts_weekly.setChecked(true);
                             }
 
-
                             String SI_DeclareMobileNumber = dataob.optString("SI_DeclareMobileNumber");
-                            if (SI_DeclareMobileNumber.equals("Self")) {
+
+                            if(SI_DeclareMobileNumber.equals("Self")) {
                                 declare_mobile_number_belong_to_self.setChecked(true);
-                            } else if (SI_DeclareMobileNumber.equals("Spouse")) {
+                            }else if (SI_DeclareMobileNumber.equals("Spouse")) {
 
                                 declare_mobile_number_belong_to_spouse.setChecked(true);
-                            } else if (SI_DeclareMobileNumber.equals("Child")) {
+                            }else if (SI_DeclareMobileNumber.equals("Child")) {
                                 declare_mobile_number_belong_to_child.setChecked(true);
-                            } else {
+                            }else {
                                 declare_mobile_number_belong_to_parant.setChecked(true);
                             }
-
                             String SI_DeclareEmailAddress = dataob.optString("SI_DeclareEmailAddress");
                             if (SI_DeclareEmailAddress.equals("Yes")) {
                                 avail_transaction_using_secured_YES.setChecked(true);
-                            } else {
+                            }else {
                                 avail_transaction_using_secured_NO.setChecked(true);
                             }
-
                             String Credit = dataob.optString("Credit");
-                            if (Credit.equals("Yes")) {
+                            if(Credit.equals("Yes")) {
                                 instruction_dp_to_recive_every_cradit_yes.setChecked(true);
-                            } else {
+                            }else {
                                 instruction_dp_to_recive_every_cradit_NO.setChecked(true);
                             }
+                            String IsNominee =dataob.optString("IsNominee");
+                            String NomineeDetails = dataob.optString("NomineeDetails");
+                            if(IsNominee.equals("Yes")&&!NomineeDetails.equals("null")){
+                                radioyesbutton_yes.setChecked(true);
+                                radionobutton_no.setChecked(false);
+                                JSONArray jsonArray=dataob.getJSONArray("NomineeDetails");
+                                //Toast.makeText(getActivity(), "Length=>"+jsonArray.length(), Toast.LENGTH_LONG).show();
+                                if(jsonArray.length()==1){
+                                    main_nominee_layoutsss.setVisibility(View.VISIBLE);
+                                    ll_nominesecondlayout.setVisibility(View.GONE);
+                                    ll_nominethirdlayout.setVisibility(View.GONE);
+                                    isnomineereadable1=true;
 
-                            String IsNominee = "Yes";
-                            if(IsNominee.equals("Yes")){
-                                Toast.makeText(getActivity(), "durgehdata",Toast.LENGTH_LONG).show();
-                                        radioyesbutton_yes.setChecked(true);
-                                        radionobutton_no.setChecked(false);
-                                        JSONArray jsonArray=dataob.getJSONArray("NomineeDetails");
-                                     Toast.makeText(getActivity(), "Array Length=>"+jsonArray.length(), Toast.LENGTH_LONG).show();
+                                    JSONObject jsonObjects0=jsonArray.getJSONObject(0);
+                                    nomineeId1=jsonObjects0.getString("NomineeId");
+                                    String image_url=jsonObjects0.getString("NomineeImage");
 
-                                        if(jsonArray.length()==0){
-                                            JSONObject jsonObjects0=jsonArray.getJSONObject(0);
-                                            String image_url=jsonObjects0.getString("NomineeImage");
-                                            Picasso.get().load(image_url).into(nominee_oneImageview);
-                                            edt_firstnominee.setText(jsonObjects0.getString("NomineeName"));
-                                            edtpercentagesharing.setText(jsonObjects0.getString("SharePercentage"));
-                                            dobofnominee1.setText(jsonObjects0.getString("DOB"));
-                                            relationshipapplicant.setText(jsonObjects0.getString("RelationshipWithNominee"));
-                                            addone.setText(jsonObjects0.getString("NomineeAddress1"));
-                                            addtwo.setText(jsonObjects0.getString("NomineeAddress2"));
-                                            addthree.setText(jsonObjects0.getString("NomineeAddress3"));
-                                            addcity.setText(jsonObjects0.getString("NomineeCity"));
-                                            addpincode.setText(jsonObjects0.getString("NomineePinCode"));
-                                            boolean isMinor1=jsonObjects0.getBoolean("IsMinor");
-                                            if(isMinor1){
-                                                edt_gurdiannameone.setText(jsonObjects0.getString("GuardiansName"));
-                                                edt_gurdianaddress_one.setText(jsonObjects0.getString("GuardiansAddress1"));
-                                                edt_gurdianaddress_two.setText(jsonObjects0.getString("GuardiansAddress2"));
-                                                edt_gurdianaddress_three.setText(jsonObjects0.getString("GuardiansAddress3"));
-                                                txt_gurdian_city.setText(jsonObjects0.getString("GuardianCity"));
-                                                relationshipapplicant_guardian.setText(jsonObjects0.getString("RelationshipWithGuardian"));
-                                                editgurdianpincode.setText(jsonObjects0.getString("GuardianPinCode"));
-                                                Picasso.get().load(jsonObjects0.getString("NomineeImage")).into(nominee_oneImageview);
-                                            }
+                                    if(!image_url.equals("")){
+                                     exist_nomineimage1=true;
+                                    }
+                                    Picasso.get().load(image_url).into(nominee_oneImageview);
+                                    AddressSameAsAccountHolder=jsonObjects0.getString("AddressSameAsAccountHolder");
+                                    if(AddressSameAsAccountHolder.equals("Yes")){
+                                        checkBoxaddress.setChecked(true);
+                                        first_Nominee_Address=true;
+                                        nominee_address_different_news.setVisibility(View.GONE);
+                                    }else{
+                                        first_Nominee_Address=false;
+                                        nominee_address_different_news.setVisibility(View.VISIBLE);
+                                        checkBoxaddress.setChecked(false);
+                                    }
 
-                                        }else if(jsonArray.length()==1){
-                                            JSONObject jsonObjects0=jsonArray.getJSONObject(0);
-                                            String image_url=jsonObjects0.getString("NomineeImage");
-                                            Picasso.get().load(image_url).into(nominee_oneImageview);
-                                            edt_firstnominee.setText(jsonObjects0.getString("NomineeName"));
-                                            edtpercentagesharing.setText(jsonObjects0.getString("SharePercentage"));
-                                            dobofnominee1.setText(jsonObjects0.getString("DOB"));
-                                            relationshipapplicant.setText(jsonObjects0.getString("RelationshipWithNominee"));
-                                            addone.setText(jsonObjects0.getString("NomineeAddress1"));
-                                            addtwo.setText(jsonObjects0.getString("NomineeAddress2"));
-                                            addthree.setText(jsonObjects0.getString("NomineeAddress3"));
-                                            addcity.setText(jsonObjects0.getString("NomineeCity"));
-                                            addpincode.setText(jsonObjects0.getString("NomineePinCode"));
-                                            boolean isMinor1=jsonObjects0.getBoolean("IsMinor");
-                                            if(isMinor1){
-                                                edt_gurdiannameone.setText(jsonObjects0.getString("GuardiansName"));
-                                                edt_gurdianaddress_one.setText(jsonObjects0.getString("GuardiansAddress1"));
-                                                edt_gurdianaddress_two.setText(jsonObjects0.getString("GuardiansAddress2"));
-                                                edt_gurdianaddress_three.setText(jsonObjects0.getString("GuardiansAddress3"));
-                                                txt_gurdian_city.setText(jsonObjects0.getString("GuardianCity"));
-                                                relationshipapplicant_guardian.setText(jsonObjects0.getString("RelationshipWithGuardian"));
-                                                editgurdianpincode.setText(jsonObjects0.getString("GuardianPinCode"));
-                                                Picasso.get().load(jsonObjects0.getString("NomineeImage")).into(nominee_oneImageview);
-                                            }
-                                            JSONObject jsonObject1=jsonArray.getJSONObject(1);
-                                            edt_name_of_nominee2.setText(jsonObject1.getString("NomineeName"));
-                                            edtpercentagesharing2.setText(jsonObject1.getString("SharePercentage"));
-                                            dobofnominee2.setText(jsonObject1.getString("DOB"));
-                                            relationshipapplicant2.setText(jsonObject1.getString("RelationshipWithNominee"));
-                                            addres_one_of_nominee2.setText(jsonObject1.getString("NomineeAddress1"));
-                                            addres_two_of_nominee2.setText(jsonObject1.getString("NomineeAddress2"));
-                                            addres_three_of_nominee2.setText(jsonObject1.getString("NomineeAddress3"));
-                                            addcity2.setText(jsonObject1.getString("NomineeCity"));
-                                            addpincode2.setText(jsonObject1.getString("NomineePinCode"));
-                                            boolean isMinor2=jsonObject1.getBoolean("IsMinor");
-                                            if(isMinor2){
-                                                edt_gurdianname2.setText(jsonObject1.getString("GuardiansName"));
-                                                edt_gurdianaddress2.setText(jsonObject1.getString("GuardiansAddress1"));
-                                                edt_gurdianaddress_two2.setText(jsonObject1.getString("GuardiansAddress2"));
-                                                edt_gurdianaddress_three2.setText(jsonObject1.getString("GuardiansAddress3"));
-                                                txt_gurdian_city2.setText(jsonObject1.getString("GuardianCity"));
-                                                relationshipapplicant_guardian2.setText(jsonObject1.getString("RelationshipWithGuardian"));
-                                                edittextpincode2.setText(jsonObject1.getString("GuardianPinCode"));
-                                            }
-                                        }else if(jsonArray.length()==2){
-                                            JSONObject jsonObjects0=jsonArray.getJSONObject(0);
-                                            String image_url=jsonObjects0.getString("NomineeImage");
-                                            Picasso.get().load(image_url).into(nominee_oneImageview);
-                                            edt_firstnominee.setText(jsonObjects0.getString("NomineeName"));
-                                            edtpercentagesharing.setText(jsonObjects0.getString("SharePercentage"));
-                                            dobofnominee1.setText(jsonObjects0.getString("DOB"));
-                                            relationshipapplicant.setText(jsonObjects0.getString("RelationshipWithNominee"));
-                                            addone.setText(jsonObjects0.getString("NomineeAddress1"));
-                                            addtwo.setText(jsonObjects0.getString("NomineeAddress2"));
-                                            addthree.setText(jsonObjects0.getString("NomineeAddress3"));
-                                            addcity.setText(jsonObjects0.getString("NomineeCity"));
-                                            addpincode.setText(jsonObjects0.getString("NomineePinCode"));
-                                            boolean isMinor1=jsonObjects0.getBoolean("IsMinor");
-                                            if(isMinor1){
-                                                edt_gurdiannameone.setText(jsonObjects0.getString("GuardiansName"));
-                                                edt_gurdianaddress_one.setText(jsonObjects0.getString("GuardiansAddress1"));
-                                                edt_gurdianaddress_two.setText(jsonObjects0.getString("GuardiansAddress2"));
-                                                edt_gurdianaddress_three.setText(jsonObjects0.getString("GuardiansAddress3"));
-                                                txt_gurdian_city.setText(jsonObjects0.getString("GuardianCity"));
-                                                relationshipapplicant_guardian.setText(jsonObjects0.getString("RelationshipWithGuardian"));
-                                                editgurdianpincode.setText(jsonObjects0.getString("GuardianPinCode"));
-                                                Picasso.get().load(jsonObjects0.getString("NomineeImage")).into(nominee_oneImageview);
-                                            }
-                                            JSONObject jsonObject1=jsonArray.getJSONObject(1);
-                                            edt_name_of_nominee2.setText(jsonObject1.getString("NomineeName"));
-                                            edtpercentagesharing2.setText(jsonObject1.getString("SharePercentage"));
-                                            dobofnominee2.setText(jsonObject1.getString("DOB"));
-                                            relationshipapplicant2.setText(jsonObject1.getString("RelationshipWithNominee"));
-                                            addres_one_of_nominee2.setText(jsonObject1.getString("NomineeAddress1"));
-                                            addres_two_of_nominee2.setText(jsonObject1.getString("NomineeAddress2"));
-                                            addres_three_of_nominee2.setText(jsonObject1.getString("NomineeAddress3"));
-                                            addcity2.setText(jsonObject1.getString("NomineeCity"));
-                                            addpincode2.setText(jsonObject1.getString("NomineePinCode"));
-                                            boolean isMinor2=jsonObject1.getBoolean("IsMinor");
-                                            if(isMinor2){
-                                                edt_gurdianname2.setText(jsonObject1.getString("GuardiansName"));
-                                                edt_gurdianaddress2.setText(jsonObject1.getString("GuardiansAddress1"));
-                                                edt_gurdianaddress_two2.setText(jsonObject1.getString("GuardiansAddress2"));
-                                                edt_gurdianaddress_three2.setText(jsonObject1.getString("GuardiansAddress3"));
-                                                txt_gurdian_city2.setText(jsonObject1.getString("GuardianCity"));
-                                                relationshipapplicant_guardian2.setText(jsonObject1.getString("RelationshipWithGuardian"));
-                                                edittextpincode2.setText(jsonObject1.getString("GuardianPinCode"));
-                                            }
-                                            JSONObject jsonObject2=jsonArray.getJSONObject(2);
-                                            edt_nameofnominee3.setText(jsonObject2.getString("NomineeName"));
-                                            edtpercentagesharing3.setText(jsonObject2.getString("SharePercentage"));
-                                            dobofnominee3.setText(jsonObject2.getString("DOB"));
-                                            relationshipapplicant3.setText(jsonObject2.getString("RelationshipWithNominee"));
-                                            addone3.setText(jsonObject2.getString("NomineeAddress1"));
-                                            addtwo3.setText(jsonObject2.getString("NomineeAddress2"));
-                                            addthree3.setText(jsonObject2.getString("NomineeAddress3"));
-                                            addcity3.setText(jsonObject2.getString("NomineeCity"));
-                                            addpincode3.setText(jsonObject2.getString("NomineePinCode"));
-                                            boolean isMinor3=jsonObject2.getBoolean("IsMinor");
-                                            if(isMinor3){
-                                                edt_gurdianname3.setText(jsonObject2.getString("GuardiansName"));
-                                                edt_gurdianaddress_one3.setText(jsonObject2.getString("GuardiansAddress1"));
-                                                edt_gurdianaddress_two3.setText(jsonObject2.getString("GuardiansAddress2"));
-                                                edt_gurdianaddress_three3.setText(jsonObject2.getString("GuardiansAddress3"));
-                                                txt_gurdian_city3.setText(jsonObject2.getString("GuardianCity"));
-                                                relationshipapplicant_guardian3.setText(jsonObject2.getString("RelationshipWithGuardian"));
-                                                edittextpincode3.setText(jsonObject2.getString("GuardianPinCode"));
-                                            }
+                                    edt_firstnominee.setText(jsonObjects0.getString("NomineeName"));
+                                    edtpercentagesharing.setText(jsonObjects0.getString("SharePercentage"));
+                                    times=jsonObjects0.getString("DOB");
+                                    inputFormat = "yyyy-MM-dd'T'HH:mm:ss";
+                                    OutPutFormat = "dd/MM/yyyy";
+                                    convertedDate = formatDate(times, inputFormat, OutPutFormat);
+
+                                    formate1="yyyy-MM-dd'T'HH:mm:ss";
+                                    formate2="yyyy-MM-dd";
+                                    convertedDate1 = formatDate(times, formate1, formate2);
+                                    DOB1=convertedDate1;
+
+                                    dobofnominee1.setText(convertedDate);
+                                    relationshipapplicant.setText(jsonObjects0.getString("RelationshipWithNominee"));
+                                    addone.setText(jsonObjects0.getString("NomineeAddress1"));
+                                    addtwo.setText(jsonObjects0.getString("NomineeAddress2"));
+                                    addthree.setText(jsonObjects0.getString("NomineeAddress3"));
+                                    addstate.setText(jsonObjects0.getString("NomineeState"));
+                                    addcity.setText(jsonObjects0.getString("NomineeCity"));
+                                    addpincode.setText(jsonObjects0.getString("NomineePinCode"));
+                                    document_typeNominee_1.setText(jsonObjects0.getString("NomineeDocumentType"));
+                                    boolean isMinor1=jsonObjects0.getBoolean("IsMinor");
+
+                                    if(isMinor1){
+                                        guardiandetailslayout.setVisibility(View.VISIBLE);
+                                        isminornominee=true;
+                                        String image_1=jsonObjects0.getString("GuardiansImage");
+
+                                         if(!image_1.equals("")){
+                                             exist_gurdianimage1=true;
+                                         }
+                                         Picasso.get().load(image_1).into(gurdian_imageview);
+                                         edt_gurdiannameone.setText(jsonObjects0.getString("GuardiansName"));
+                                         GuardianAddressSameAsAccountHolder=jsonObjects0.getString("GuardianAddressSameAsAccountHolder");
+                                        if(GuardianAddressSameAsAccountHolder.equals("Yes")){
+                                            gurdianaddresscheckbox.setChecked(true);
+                                            gurdiansaddressselcted=true;
+                                            gurdian_address1.setVisibility(View.GONE);
+                                        }else{
+                                            gurdianaddresscheckbox.setChecked(false);
+                                            gurdiansaddressselcted=false;
+                                            gurdian_address1.setVisibility(View.VISIBLE);
                                         }
-                            }else{
+                                        edt_gurdianaddress_one.setText(jsonObjects0.getString("GuardiansAddress1"));
+                                        edt_gurdianaddress_two.setText(jsonObjects0.getString("GuardiansAddress2"));
+                                        edt_gurdianaddress_three.setText(jsonObjects0.getString("GuardiansAddress3"));
+                                        txt_gurdian_city.setText(jsonObjects0.getString("GuardianCity"));
+                                        relationshipapplicant_guardian.setText(jsonObjects0.getString("RelationshipWithGuardian"));
+                                        editgurdianpincode.setText(jsonObjects0.getString("GuardianPinCode"));
+                                        document_typeNomineeGurdian_1.setText(jsonObjects0.getString("GuardianDocumentType"));
+                                        Picasso.get().load(jsonObjects0.getString("NomineeImage")).into(nominee_oneImageview);
+
+                                    }else{
+
+                                        guardiandetailslayout.setVisibility(View.GONE);
+                                        isminornominee=false;
+                                    }
+
+                                }else if(jsonArray.length()==2){
+                                    main_nominee_layoutsss.setVisibility(View.VISIBLE);
+                                    ll_nominesecondlayout.setVisibility(View.VISIBLE);
+                                    checkcount=false;
+                                    secondnomineactive=true;
+                                    ll_nominethirdlayout.setVisibility(View.GONE);
+                                    JSONObject jsonObjects0=jsonArray.getJSONObject(0);
+                                    String image_url=jsonObjects0.getString("NomineeImage");
+                                    isnomineereadable1=true;
+                                    if(!image_url.equals("")){
+                                        exist_nomineimage1=true;
+                                    }
+                                    Picasso.get().load(image_url).into(nominee_oneImageview);
+                                    nomineeId1=jsonObjects0.getString("NomineeId");
+                                    edt_firstnominee.setText(jsonObjects0.getString("NomineeName"));
+                                    AddressSameAsAccountHolder=jsonObjects0.getString("AddressSameAsAccountHolder");
+                                    if(AddressSameAsAccountHolder.equals("Yes")){
+                                        checkBoxaddress.setChecked(true);
+                                        first_Nominee_Address=true;
+                                        nominee_address_different_news.setVisibility(View.GONE);
+                                    }else{
+                                        first_Nominee_Address=false;
+                                        nominee_address_different_news.setVisibility(View.VISIBLE);
+                                        checkBoxaddress.setChecked(false);
+                                    }
+                                    edtpercentagesharing.setText(jsonObjects0.getString("SharePercentage"));
+                                    times=jsonObjects0.getString("DOB");
+                                    inputFormat = "yyyy-MM-dd'T'HH:mm:ss";
+                                    OutPutFormat = "dd-MM-yyyy";
+                                    convertedDate = formatDate(times, inputFormat, OutPutFormat);
+                                    formate1="yyyy-MM-dd'T'HH:mm:ss";
+                                    formate2="yyyy-MM-dd";
+                                    convertedDate1 = formatDate(times, formate1, formate2);
+                                    DOB1=convertedDate1;
+                                    dobofnominee1.setText(convertedDate);
+                                    document_typeNominee_1.setText(jsonObjects0.getString("NomineeDocumentType"));
+                                    relationshipapplicant.setText(jsonObjects0.getString("RelationshipWithNominee"));
+                                    addone.setText(jsonObjects0.getString("NomineeAddress1"));
+                                    addtwo.setText(jsonObjects0.getString("NomineeAddress2"));
+                                    addthree.setText(jsonObjects0.getString("NomineeAddress3"));
+                                    addstate.setText(jsonObjects0.getString("NomineeState"));
+                                    addcity.setText(jsonObjects0.getString("NomineeCity"));
+                                    addpincode.setText(jsonObjects0.getString("NomineePinCode"));
+                                    boolean isMinor1=jsonObjects0.getBoolean("IsMinor");
+
+                                    if(isMinor1){
+                                        guardiandetailslayout.setVisibility(View.VISIBLE);
+                                        isminornominee=true;
+                                        String image_1=jsonObjects0.getString("GuardiansImage");
+                                        if(!image_1.equals("")){
+                                            exist_gurdianimage1=true;
+                                        }
+                                        Picasso.get().load(image_1).into(gurdian_imageview);
+                                        GuardianAddressSameAsAccountHolder=jsonObjects0.getString("GuardianAddressSameAsAccountHolder");
+                                        if(GuardianAddressSameAsAccountHolder.equals("Yes")){
+                                            gurdianaddresscheckbox.setChecked(true);
+                                            gurdiansaddressselcted=true;
+                                            gurdian_address1.setVisibility(View.GONE);
+                                        }else{
+                                            gurdianaddresscheckbox.setChecked(false);
+                                            gurdiansaddressselcted=false;
+                                            gurdian_address1.setVisibility(View.VISIBLE);
+                                        }
+
+                                        edt_gurdiannameone.setText(jsonObjects0.getString("GuardiansName"));
+                                        edt_gurdianaddress_one.setText(jsonObjects0.getString("GuardiansAddress1"));
+                                        edt_gurdianaddress_two.setText(jsonObjects0.getString("GuardiansAddress2"));
+                                        edt_gurdianaddress_three.setText(jsonObjects0.getString("GuardiansAddress3"));
+                                        txt_gurdian_city.setText(jsonObjects0.getString("GuardianCity"));
+                                        relationshipapplicant_guardian.setText(jsonObjects0.getString("RelationshipWithGuardian"));
+                                        editgurdianpincode.setText(jsonObjects0.getString("GuardianPinCode"));
+                                        Picasso.get().load(jsonObjects0.getString("NomineeImage")).into(nominee_oneImageview);
+                                        document_typeNomineeGurdian_1.setText(jsonObjects0.getString("GuardianDocumentType"));
+                                    }else{
+                                        guardiandetailslayout.setVisibility(View.GONE);
+                                        isminornominee=false;
+                                    }
+
+                                    JSONObject jsonObject1=jsonArray.getJSONObject(1);
+                                    String image_urll=jsonObject1.getString("NomineeImage");
+                                    isnomineereadable2=true;
+                                    if(!image_urll.equals("")){
+                                        exist_nomineimage2=true;
+                                    }
+                                    Picasso.get().load(image_urll).into(second_nominee_image);
+                                    nomineeId2=jsonObject1.getString("NomineeId");
+                                    edt_name_of_nominee2.setText(jsonObject1.getString("NomineeName"));
+                                    AddressSameAsAccountHolder=jsonObject1.getString("AddressSameAsAccountHolder");
+                                    if(AddressSameAsAccountHolder.equals("Yes")){
+                                        checkBoxaddress_2.setChecked(true);
+                                        nominee_address_different_news2.setVisibility(View.GONE);
+                                        secondn_Nominee_Address=true;
+                                    }else{
+                                        gurdian_address2.setVisibility(View.VISIBLE);
+                                        secondn_Nominee_Address=false;
+                                        checkBoxaddress_2.setChecked(false);
+                                    }
+                                    edtpercentagesharing2.setText(jsonObject1.getString("SharePercentage"));
+                                    times=jsonObject1.getString("DOB");
+                                    inputFormat = "yyyy-MM-dd'T'HH:mm:ss";
+                                    OutPutFormat = "dd-MM-yyyy";
+                                    convertedDate = formatDate(times, inputFormat, OutPutFormat);
+                                    formate1="yyyy-MM-dd'T'HH:mm:ss";
+                                    formate2="yyyy-MM-dd";
+                                    convertedDate1 = formatDate(times, formate1, formate2);
+                                    DOB2=convertedDate1;
+                                    dobofnominee2.setText(convertedDate);
+
+
+                                    relationshipapplicant2.setText(jsonObject1.getString("RelationshipWithNominee"));
+                                    addres_one_of_nominee2.setText(jsonObject1.getString("NomineeAddress1"));
+                                    addres_two_of_nominee2.setText(jsonObject1.getString("NomineeAddress2"));
+                                    addres_three_of_nominee2.setText(jsonObject1.getString("NomineeAddress3"));
+                                    addstate2.setText(jsonObject1.getString("NomineeState"));
+                                    addcity2.setText(jsonObject1.getString("NomineeCity"));
+                                    addpincode2.setText(jsonObject1.getString("NomineePinCode"));
+                                    document_typeNominee_2.setText(jsonObject1.getString("NomineeDocumentType"));
+                                    boolean isMinor2=jsonObject1.getBoolean("IsMinor");
+                                    if(isMinor2){
+                                        guardiandetailslayout_secondNominee.setVisibility(View.VISIBLE);
+                                        is_Second_minornominee=true;
+                                        String image_1=jsonObject1.getString("GuardiansImage");
+                                        if(!image_1.equals("")){
+                                            exist_gurdianimage2=true;
+                                        }
+                                        Picasso.get().load(image_1).into(gurdian_Second_imageview);
+                                        GuardianAddressSameAsAccountHolder=jsonObject1.getString("GuardianAddressSameAsAccountHolder");
+                                        if(GuardianAddressSameAsAccountHolder.equals("Yes")){
+                                            gurdianaddresscheckbox_ofsecondnominee.setChecked(true);
+                                            gurdiansaddressselcted_ofsecondnominee=true;
+                                            gurdian_address2.setVisibility(View.GONE);
+
+                                        }else{
+                                            gurdianaddresscheckbox_ofsecondnominee.setChecked(false);
+                                            gurdiansaddressselcted_ofsecondnominee=false;
+                                            gurdian_address2.setVisibility(View.VISIBLE);
+                                        }
+                                        edt_gurdianname2.setText(jsonObject1.getString("GuardiansName"));
+                                        edt_gurdianaddress2.setText(jsonObject1.getString("GuardiansAddress1"));
+                                        edt_gurdianaddress_two2.setText(jsonObject1.getString("GuardiansAddress2"));
+                                        edt_gurdianaddress_three2.setText(jsonObject1.getString("GuardiansAddress3"));
+                                        txt_gurdian_city2.setText(jsonObject1.getString("GuardianCity"));
+                                        relationshipapplicant_guardian2.setText(jsonObject1.getString("RelationshipWithGuardian"));
+                                        edittextpincode2.setText(jsonObject1.getString("GuardianPinCode"));
+                                        document_typeNomineeGurdian_2.setText(jsonObject1.getString("GuardianDocumentType"));
+
+                                    }else{
+                                        guardiandetailslayout_secondNominee.setVisibility(View.GONE);
+                                        is_Second_minornominee=false;
+                                    }
+                                }else if(jsonArray.length()==3){
+                                    main_nominee_layoutsss.setVisibility(View.VISIBLE);
+                                    ll_nominesecondlayout.setVisibility(View.VISIBLE);
+                                    checkcount=false;
+                                    secondnomineactive=true;
+                                    ll_nominethirdlayout.setVisibility(View.VISIBLE);
+                                    checkcount = true;
+                                    thirdnomineactive=true;
+                                    isnomineereadable1=true;
+                                    JSONObject jsonObjects0=jsonArray.getJSONObject(0);
+                                    nomineeId1=jsonObjects0.getString("NomineeId");
+                                    String image_url=jsonObjects0.getString("NomineeImage");
+                                    if(!image_url.equals("")){
+                                        exist_nomineimage1=true;
+                                    }
+
+                                    Picasso.get().load(image_url).into(nominee_oneImageview);
+                                    edt_firstnominee.setText(jsonObjects0.getString("NomineeName"));
+                                    AddressSameAsAccountHolder=jsonObjects0.getString("AddressSameAsAccountHolder");
+
+                                    if(AddressSameAsAccountHolder.equals("Yes")){
+                                        checkBoxaddress.setChecked(true);
+                                        first_Nominee_Address=true;
+                                        nominee_address_different_news.setVisibility(View.GONE);
+                                    }else{
+                                        first_Nominee_Address=false;
+                                        nominee_address_different_news.setVisibility(View.VISIBLE);
+                                        checkBoxaddress.setChecked(false);
+                                    }
+                                    edtpercentagesharing.setText(jsonObjects0.getString("SharePercentage"));
+                                    times=jsonObjects0.getString("DOB");
+                                    inputFormat = "yyyy-MM-dd'T'HH:mm:ss";
+                                    OutPutFormat = "dd-MM-yyyy";
+                                    convertedDate = formatDate(times, inputFormat, OutPutFormat);
+
+                                    formate1="yyyy-MM-dd'T'HH:mm:ss";
+                                    formate2="yyyy-MM-dd";
+                                    convertedDate1 = formatDate(times, formate1, formate2);
+                                    DOB1=convertedDate1;
+                                    dobofnominee1.setText(convertedDate);
+                                    relationshipapplicant.setText(jsonObjects0.getString("RelationshipWithNominee"));
+                                    addone.setText(jsonObjects0.getString("NomineeAddress1"));
+                                    addtwo.setText(jsonObjects0.getString("NomineeAddress2"));
+                                    addthree.setText(jsonObjects0.getString("NomineeAddress3"));
+                                    addstate.setText(jsonObjects0.getString("NomineeState"));
+                                    addcity.setText(jsonObjects0.getString("NomineeCity"));
+                                    addpincode.setText(jsonObjects0.getString("NomineePinCode"));
+                                    document_typeNominee_1.setText(jsonObjects0.getString("NomineeDocumentType"));
+                                    boolean isMinor1=jsonObjects0.getBoolean("IsMinor");
+                                    if(isMinor1){
+                                        guardiandetailslayout.setVisibility(View.VISIBLE);
+                                        isminornominee=true;
+                                        String image_1=jsonObjects0.getString("GuardiansImage");
+                                        if(!image_1.equals("")){
+                                            exist_gurdianimage1=true;
+                                        }
+                                        Picasso.get().load(image_1).into(gurdian_imageview);
+                                        GuardianAddressSameAsAccountHolder=jsonObjects0.getString("GuardianAddressSameAsAccountHolder");
+                                        if(GuardianAddressSameAsAccountHolder.equals("Yes")){
+                                            gurdianaddresscheckbox.setChecked(true);
+                                            gurdiansaddressselcted=true;
+                                            gurdian_address1.setVisibility(View.GONE);
+                                        }else{
+                                            gurdianaddresscheckbox.setChecked(false);
+                                            gurdiansaddressselcted=false;
+                                            gurdian_address1.setVisibility(View.VISIBLE);
+                                        }
+                                        edt_gurdiannameone.setText(jsonObjects0.getString("GuardiansName"));
+                                        edt_gurdianaddress_one.setText(jsonObjects0.getString("GuardiansAddress1"));
+                                        edt_gurdianaddress_two.setText(jsonObjects0.getString("GuardiansAddress2"));
+                                        edt_gurdianaddress_three.setText(jsonObjects0.getString("GuardiansAddress3"));
+                                        txt_gurdian_city.setText(jsonObjects0.getString("GuardianCity"));
+                                        relationshipapplicant_guardian.setText(jsonObjects0.getString("RelationshipWithGuardian"));
+                                        editgurdianpincode.setText(jsonObjects0.getString("GuardianPinCode"));
+                                        Picasso.get().load(jsonObjects0.getString("NomineeImage")).into(nominee_oneImageview);
+                                        document_typeNomineeGurdian_1.setText(jsonObjects0.getString("GuardianDocumentType"));
+
+                                    }else{
+                                        guardiandetailslayout.setVisibility(View.GONE);
+                                        isminornominee=false;
+                                    }
+                                    JSONObject jsonObject1=jsonArray.getJSONObject(1);
+
+                                    isnomineereadable2=true;
+                                    String image_urll=jsonObject1.getString("NomineeImage");
+
+                                    if(!image_urll.equals("")){
+                                        exist_nomineimage2=true;
+                                    }
+                                    Picasso.get().load(image_urll).into(second_nominee_image);
+                                    nomineeId2=jsonObject1.getString("NomineeId");
+                                    edt_name_of_nominee2.setText(jsonObject1.getString("NomineeName"));
+                                    AddressSameAsAccountHolder=jsonObject1.getString("AddressSameAsAccountHolder");
+
+                                    if(AddressSameAsAccountHolder.equals("Yes")){
+                                        checkBoxaddress_2.setChecked(true);
+                                        secondn_Nominee_Address=true;
+                                        nominee_address_different_news2.setVisibility(View.GONE);
+
+                                    }else{
+                                        secondn_Nominee_Address=false;
+                                        nominee_address_different_news2.setVisibility(View.VISIBLE);
+                                        checkBoxaddress_2.setChecked(false);
+
+                                    }
+                                    edtpercentagesharing2.setText(jsonObject1.getString("SharePercentage"));
+                                    times=jsonObject1.getString("DOB");
+                                    inputFormat = "yyyy-MM-dd'T'HH:mm:ss";
+                                    OutPutFormat = "dd-MM-yyyy";
+                                    convertedDate = formatDate(times, inputFormat, OutPutFormat);
+
+
+                                    formate1="yyyy-MM-dd'T'HH:mm:ss";
+                                    formate2="yyyy-MM-dd";
+                                    convertedDate1 = formatDate(times, formate1, formate2);
+
+                                    DOB2=convertedDate1;
+                                    dobofnominee2.setText(convertedDate);
+                                    relationshipapplicant2.setText(jsonObject1.getString("RelationshipWithNominee"));
+                                    addres_one_of_nominee2.setText(jsonObject1.getString("NomineeAddress1"));
+                                    addres_two_of_nominee2.setText(jsonObject1.getString("NomineeAddress2"));
+                                    addres_three_of_nominee2.setText(jsonObject1.getString("NomineeAddress3"));
+                                    addstate2.setText(jsonObject1.getString("NomineeState"));
+                                    addcity2.setText(jsonObject1.getString("NomineeCity"));
+                                    addpincode2.setText(jsonObject1.getString("NomineePinCode"));
+                                    boolean isMinor2=jsonObject1.getBoolean("IsMinor");
+                                    document_typeNominee_2.setText(jsonObject1.getString("NomineeDocumentType"));
+
+                                    if(isMinor2){
+                                        guardiandetailslayout_secondNominee.setVisibility(View.VISIBLE);
+                                        is_Second_minornominee=true;
+                                        String image_1=jsonObject1.getString("GuardiansImage");
+                                        if(!image_1.equals("")){
+                                            exist_gurdianimage2=true;
+                                        }
+                                        Picasso.get().load(image_1).into(gurdian_Second_imageview);
+                                        GuardianAddressSameAsAccountHolder=jsonObject1.getString("GuardianAddressSameAsAccountHolder");
+                                        if(GuardianAddressSameAsAccountHolder.equals("Yes")){
+                                            gurdianaddresscheckbox.setChecked(true);
+                                            gurdiansaddressselcted=true;
+                                            gurdian_address1.setVisibility(View.GONE);
+
+                                        }else{
+                                            gurdianaddresscheckbox.setChecked(false);
+                                            gurdiansaddressselcted=false;
+                                            gurdian_address1.setVisibility(View.VISIBLE);
+                                        }
+                                        edt_gurdianname2.setText(jsonObject1.getString("GuardiansName"));
+                                        edt_gurdianaddress2.setText(jsonObject1.getString("GuardiansAddress1"));
+                                        edt_gurdianaddress_two2.setText(jsonObject1.getString("GuardiansAddress2"));
+                                        edt_gurdianaddress_three2.setText(jsonObject1.getString("GuardiansAddress3"));
+                                        txt_gurdian_city2.setText(jsonObject1.getString("GuardianCity"));
+                                        relationshipapplicant_guardian2.setText(jsonObject1.getString("RelationshipWithGuardian"));
+                                        edittextpincode2.setText(jsonObject1.getString("GuardianPinCode"));
+                                        document_typeNomineeGurdian_2.setText(jsonObject1.getString("GuardianDocumentType"));
+                                       }else{
+                                        guardiandetailslayout_secondNominee.setVisibility(View.GONE);
+                                        is_Second_minornominee=false;
+                                    }
+                                    JSONObject jsonObject2=jsonArray.getJSONObject(2);
+                                    String image_urlll=jsonObject2.getString("NomineeImage");
+                                    if(!image_urlll.equals("")){
+                                        exist_nomineimage3=true;
+                                    }
+                                    Picasso.get().load(image_urlll).into(Third_nominee_image);
+                                    nomineeId3=jsonObject2.getString("NomineeId");
+                                    edt_nameofnominee3.setText(jsonObject2.getString("NomineeName"));
+                                    AddressSameAsAccountHolder=jsonObject2.getString("AddressSameAsAccountHolder");
+                                    if(AddressSameAsAccountHolder.equals("Yes")){
+                                        checkBoxaddress3.setChecked(true);
+                                        third_Nominee_Address=true;
+                                        nominee_address_different_news3.setVisibility(View.GONE);
+
+                                    }else{
+                                        third_Nominee_Address=false;
+                                        nominee_address_different_news3.setVisibility(View.VISIBLE);
+                                        checkBoxaddress3.setChecked(false);
+                                    }
+                                    edtpercentagesharing3.setText(jsonObject2.getString("SharePercentage"));
+                                    times=jsonObject2.getString("DOB");
+                                    inputFormat = "yyyy-MM-dd'T'HH:mm:ss";
+                                    OutPutFormat = "dd-MM-yyyy";
+                                    convertedDate = formatDate(times, inputFormat, OutPutFormat);
+
+
+                                    formate1="yyyy-MM-dd'T'HH:mm:ss";
+                                    formate2="yyyy-MM-dd";
+                                    convertedDate1 = formatDate(times, formate1, formate2);
+                                    DOB3=convertedDate1;
+                                    isnomineereadable3=true;
+
+                                    dobofnominee3.setText(convertedDate);
+                                    relationshipapplicant3.setText(jsonObject2.getString("RelationshipWithNominee"));
+                                    addone3.setText(jsonObject2.getString("NomineeAddress1"));
+                                    addtwo3.setText(jsonObject2.getString("NomineeAddress2"));
+                                    addthree3.setText(jsonObject2.getString("NomineeAddress3"));
+                                    addstate3.setText(jsonObject2.getString("NomineeState"));
+                                    addcity3.setText(jsonObject2.getString("NomineeCity"));
+                                    addpincode3.setText(jsonObject2.getString("NomineePinCode"));
+                                    document_typeNominee_3.setText(jsonObject2.getString("NomineeDocumentType"));
+                                    boolean isMinor3=jsonObject2.getBoolean("IsMinor");
+                                    if(isMinor3){
+                                        guardiandetailslayout_thirdNominee.setVisibility(View.VISIBLE);
+                                        is_Third_minornominee=true;
+                                        String image_1=jsonObject1.getString("GuardiansImage");
+                                        if(!image_1.equals("")){
+                                            exist_gurdianimage3=true;
+                                        }
+                                        Picasso.get().load(image_1).into(gurdian_imageviewthird);
+                                        GuardianAddressSameAsAccountHolder=jsonObject2.getString("GuardianAddressSameAsAccountHolder");
+                                        if(GuardianAddressSameAsAccountHolder.equals("Yes")){
+                                            checkBoxgurdianaddress3.setChecked(true);
+                                            gurdiansaddressselcted_ofthirdnominee=true;
+                                            gurdian_address3.setVisibility(View.GONE);
+                                        }else{
+                                            checkBoxgurdianaddress3.setChecked(false);
+                                            gurdiansaddressselcted_ofthirdnominee=false;
+                                            gurdian_address3.setVisibility(View.VISIBLE);
+                                        }
+                                        edt_gurdianname3.setText(jsonObject2.getString("GuardiansName"));
+                                        edt_gurdianaddress_one3.setText(jsonObject2.getString("GuardiansAddress1"));
+                                        edt_gurdianaddress_two3.setText(jsonObject2.getString("GuardiansAddress2"));
+                                        edt_gurdianaddress_three3.setText(jsonObject2.getString("GuardiansAddress3"));
+                                        txt_gurdian_city3.setText(jsonObject2.getString("GuardianCity"));
+                                        relationshipapplicant_guardian3.setText(jsonObject2.getString("RelationshipWithGuardian"));
+                                        edittextpincode3.setText(jsonObject2.getString("GuardianPinCode"));
+                                        document_typeNomineeGurdian_3.setText(jsonObject2.getString("GuardianDocumentType"));
+                                    }else{
+                                        guardiandetailslayout_thirdNominee.setVisibility(View.GONE);
+                                        is_Third_minornominee=false;
+                                    }}
+
+                            }else if(IsNominee.equals("No")&&NomineeDetails.equals("null")){
                                 radioyesbutton_yes.setChecked(false);
                                 radionobutton_no.setChecked(true);
                             }
-                            /*Picasso.get().
-                                          load("http://" + docObj.getString("documentUrl")).
-                                           resize(120, 60).
-                                         into(userAadharBackImage);*/
+                            else if(NomineeDetails.equals("null")||NomineeDetails.equals("")){
+                                radioyesbutton_yes.setChecked(false);
+                                radionobutton_no.setChecked(false);
+                            }
+                            else{
+                                radioyesbutton_yes.setChecked(false);
+                                radionobutton_no.setChecked(true);
+                            }
+
                             String PledgeInstructions = dataob.optString("PledgeInstructions");
                             if (PledgeInstructions.equals("Yes")) {
                                 instruction_dp_to_accept_all_pledge_YES.setChecked(true);
@@ -2716,39 +2959,26 @@ public class ReviewFragment extends Fragment {
                             String InterestThroughECS = dataob.optString("InterestThroughECS");
                             if (InterestThroughECS.equals("Yes")) {
                                 bank_account_as_given_below_through_ECS_YES.setChecked(true);
-                            } else {
+                            }else{
                                 bank_account_as_given_below_through_ECS_NO.setChecked(true);
                             }
-
                             String DematAccFacility = dataob.optString("DematAccFacility");
-                            if (DematAccFacility.equals("Yes")) {
+                            if(DematAccFacility.equals("Yes")) {
                                 basic_services_demat_account_facility_YES.setChecked(true);
-                            } else {
+                            }else {
                                 basic_services_demat_account_facility_NO.setChecked(true);
-                            } }
+                            }}
                     }
-
                 }catch (JSONException ex) {
-
                     System.out.println("ADDITIONALDATA" + ex.getMessage() + "");
                 }
-
-            } else if (Method.equals("fillCommodityForm")) {
-
-                try {
+            }else if (Method.equals("fillCommodityForm")) {
+                try{
                     JSONObject mainObj = new JSONObject(Data);
                     if (mainObj.getString("status").equals("success")) {
-
                         String Commodity_url = mainObj.getString("data");
-
-                        // This code will execute if file will download
-                        // From the server end
-                        // without compression
-//                        download_Commodity(Commodity_url);
                     }
-
-
-                } catch (JSONException ex) {
+                }catch (JSONException ex) {
                 }
             }else if (Method.equals("UploadOnDigio")) {
                 try {
@@ -2766,10 +2996,10 @@ public class ReviewFragment extends Fragment {
                                         }
                                     }
                                     callNewDigio(document_id);
-                                } else {
+                                }else{
                                     Toast.makeText(getActivity(), " Your Document Id Is Not valid ", Toast.LENGTH_LONG).show();
                                 }
-                            } else {
+                            }else{
                                 Toast.makeText(getActivity(), " Your Document Id Is Not valid ", Toast.LENGTH_LONG).show();
                             }
                         }
@@ -2779,15 +3009,12 @@ public class ReviewFragment extends Fragment {
                 }
 
 
-            } else if (Method.equals("uploadDigioPDF")) {
-
-
-                if (File_download_dialog != null) {
+            }else if (Method.equals("uploadDigioPDF")) {
+                if(File_download_dialog != null) {
                     if (File_download_dialog.isShowing())
                         File_download_dialog.dismiss();
                 }
-
-                try {
+                try{
                     JSONObject mainObj = new JSONObject(Data);
                     //String documentId = mainObj.getString("id");
                     Digio digio = new Digio();
@@ -2797,15 +3024,11 @@ public class ReviewFragment extends Fragment {
                     //digioConfi//Stage is sandbox
                     digioConfig.setServiceMode(DigioServiceMode.OTP);//FP is fingerprint
                     digioConfig.setAadhaarId(ScanResultAadhar.uid);
-
-                    try {
+                    try{
                         digio.init(getActivity(), digioConfig);
-                    } catch (Exception e) {
-
-
+                    }catch(Exception e) {
                     }
                     try {
-
                         digioDownloaded = false;
                         UserIdentity user = FinalApplicationForm.getUserIdentyObject();
                         digioDocumentId = document_id;
@@ -2813,12 +3036,10 @@ public class ReviewFragment extends Fragment {
                         digio.esign(document_id, user.getEmailId());
                         System.out.println("UploadOnDigio_url12" + document_id);
 
-                    } catch (Exception e) {
+                    }catch (Exception e) {
                         e.printStackTrace();
                     }
-
-
-                } catch (JSONException ex) {
+                }catch (JSONException ex) {
 
                     Toast.makeText(getActivity(), ex.getMessage() + "",
                             Toast.LENGTH_LONG).show();
@@ -3149,14 +3370,7 @@ public class ReviewFragment extends Fragment {
 //                                                    }
                                                     unitCommodityoption.setText(unitCommodityoption_value);
                                                 } else {
-
-                                                }
-                                            }
-
-                                        }
-
-
-                                    }
+                                                } } } }
                                 }
 
                                 System.out.println("Data1" + commodity_derivatives_futures_value);
@@ -3558,6 +3772,26 @@ public class ReviewFragment extends Fragment {
             }
         }
     };
+
+    public String formatDate(String dateToFormat, String inputFormat, String outputFormat) {
+        try {
+            Log.e("DATE", "Input Date Date is " + dateToFormat);
+
+            String convertedDate = new SimpleDateFormat(outputFormat)
+                    .format(new SimpleDateFormat(inputFormat)
+                            .parse(dateToFormat));
+
+            Log.e("DATE", "Output Date is " + convertedDate);
+
+            //Update Date
+            return convertedDate;
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
 
     public ReviewFragment() {
         // Required empty public constructor
@@ -4130,9 +4364,7 @@ public class ReviewFragment extends Fragment {
     }
 
     private void callAddtionalData() {
-        //              /http://54.80.63.129/api/AdditionalDetails/GetAllAdditionalDetails_New?ekycApplicationId=81313
-        //              AdditionalDetails/getAllAdditionalDetails
-        //http://54.80.63.129/api/AdditionalDetails/getAllAdditionalDetails?ekycApplicationId=773
+
 
         System.out.println("DurgeshChoudhary"+ AppInfo.ekycApplicationId);
 
@@ -4198,10 +4430,8 @@ public class ReviewFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        //Inflate the layout for this fragment
         return inflater.inflate(R.layout.review_application_layout, container, false);
     }
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -4213,6 +4443,7 @@ public class ReviewFragment extends Fragment {
         }else{
             filledFormFileName = currentDateandTime + ".pdf";
         }
+
         File_download_dialog = new ProgressDialog(getActivity());
         tempHoldImageView = new ImageView(getActivity());
         AdditionalObj = new JSONObject();
@@ -4242,26 +4473,176 @@ public class ReviewFragment extends Fragment {
         ll_nominesecondlayout=getActivity().findViewById(R.id.ll_nominesecondlayout);
         ll_nominethirdlayout=getActivity().findViewById(R.id.ll_nominethirdlayout);
         toggle_button=getActivity().findViewById(R.id.toggle_button);
+        cancelnomineelayout1=getActivity().findViewById(R.id.cancelnomineelayout1);
         cancelnomineelayout2=getActivity().findViewById(R.id.cancelnomineelayout2);
         cancelnomineelayout3=getActivity().findViewById(R.id.cancelnomineelayout3);
         testImageIV = getActivity().findViewById(R.id.testImageIV);
 
 
+        cancelnomineelayout1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isnomineereadable1){
+                    String nomineid=nomineeId1;
+                    deleta_data(nomineid);
+                    edt_firstnominee.setText("");
+                    edtpercentagesharing.setText("");
+                    DOB1="";
+                    dobofnominee1.setText("");
+                    relationshipapplicant.setText("");
+                    addone.setText("");
+                    addtwo.setText("");
+                    addthree.setText("");
+                    addstate.setText("");
+                    addcity.setText("");
+                    addpincode.setText("");
+                    document_typeNominee_1.setText("");
+                    edt_gurdiannameone.setText("");
+                    edt_gurdianaddress_one.setText("");
+                    edt_gurdianaddress_two.setText("");
+                    edt_gurdianaddress_three.setText("");
+                    txt_gurdian_city.setText("");
+                    relationshipapplicant_guardian.setText("");
+                    editgurdianpincode.setText("");
+                    document_typeNomineeGurdian_1.setText("");
+                    nominee_oneImageview.setImageResource(R.drawable.button_border);
+                    gurdian_imageview.setImageResource(R.drawable.button_border);
+                }else{
+                        edt_firstnominee.setText("");
+                        edtpercentagesharing.setText("");
+                        DOB1="";
+                        dobofnominee1.setText("");
+                        relationshipapplicant.setText("");
+                        addone.setText("");
+                        addtwo.setText("");
+                        addthree.setText("");
+                        addstate.setText("");
+                        addcity.setText("");
+                        addpincode.setText("");
+                        document_typeNominee_1.setText("");
+                        edt_gurdiannameone.setText("");
+                            edt_gurdianaddress_one.setText("");
+                            edt_gurdianaddress_two.setText("");
+                            edt_gurdianaddress_three.setText("");
+                            txt_gurdian_city.setText("");
+                            relationshipapplicant_guardian.setText("");
+                            editgurdianpincode.setText("");
+                            document_typeNomineeGurdian_1.setText("");
+                            nominee_oneImageview.setImageResource(R.drawable.button_border);
+                            gurdian_imageview.setImageResource(R.drawable.button_border);
+                            }}}
+                        );
         cancelnomineelayout2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ll_nominesecondlayout.setVisibility(View.GONE);
                 checkcount=false;
                 secondnomineactive=false;
-            }
-        });
+                if(isnomineereadable2){
+                    String nomineid=nomineeId2;
+                    deleta_data(nomineid);
+                    edt_name_of_nominee2.setText("");
+                    edtpercentagesharing2.setText("");
+                    DOB2="";
+                    dobofnominee2.setText("");
+                    relationshipapplicant2.setText("");
+                    addres_one_of_nominee2.setText("");
+                    addres_two_of_nominee2.setText("");
+                    addres_three_of_nominee2.setText("");
+                    addstate2.setText("");
+                    addcity2.setText("");
+                    addpincode2.setText("");
+                    document_typeNominee_2.setText("");
+                    edt_gurdianname2.setText("");
+                    edt_gurdianaddress2.setText("");
+                    edt_gurdianaddress_two2.setText("");
+                    edt_gurdianaddress_three2.setText("");
+                    txt_gurdian_city2.setText("");
+                    relationshipapplicant_guardian2.setText("");
+                    edittextpincode2.setText("");
+                    document_typeNomineeGurdian_2.setText("");
+                    second_nominee_image.setImageResource(R.drawable.button_border);
+                    gurdian_Second_imageview.setImageResource(R.drawable.button_border);
+
+                }else{
+                    edt_name_of_nominee2.setText("");
+                    edtpercentagesharing2.setText("");
+                    DOB2="";
+                    dobofnominee2.setText("");
+                    relationshipapplicant2.setText("");
+                    addres_one_of_nominee2.setText("");
+                    addres_two_of_nominee2.setText("");
+                    addres_three_of_nominee2.setText("");
+                    addstate2.setText("");
+                    addcity2.setText("");
+                        addpincode2.setText("");
+                        document_typeNominee_2.setText("");
+                        edt_gurdianname2.setText("");
+                        edt_gurdianaddress2.setText("");
+                        edt_gurdianaddress_two2.setText("");
+                        edt_gurdianaddress_three2.setText("");
+                        txt_gurdian_city2.setText("");
+                        relationshipapplicant_guardian2.setText("");
+                        edittextpincode2.setText("");
+                        document_typeNomineeGurdian_2.setText("");
+                    second_nominee_image.setImageResource(R.drawable.button_border);
+                    gurdian_Second_imageview.setImageResource(R.drawable.button_border);
+                   }}
+                 });
         cancelnomineelayout3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ll_nominethirdlayout.setVisibility(View.GONE);
                 checkcount=true;
-            }
-        });
+                if(isnomineereadable3){
+                    String nomineid=nomineeId3;
+                    deleta_data(nomineid);
+                    edt_nameofnominee3.setText("");
+                    edtpercentagesharing3.setText("");
+                    dobofnominee3.setText("");
+                    relationshipapplicant3.setText("");
+                    addone3.setText("");
+                    addtwo3.setText("");
+                    addthree3.setText("");
+                    addstate3.setText("");
+                    addcity3.setText("");
+                    addpincode3.setText("");
+                    document_typeNominee_3.setText("");
+                    edt_gurdianname3.setText("");
+                    edt_gurdianaddress_one3.setText("");
+                    edt_gurdianaddress_two3.setText("");
+                    edt_gurdianaddress_three3.setText("");
+                    txt_gurdian_city3.setText("");
+                    relationshipapplicant_guardian3.setText("");
+                    edittextpincode3.setText("");
+                    document_typeNomineeGurdian_3.setText("");
+                    Third_nominee_image.setImageResource(R.drawable.button_border);
+                    gurdian_imageviewthird.setImageResource(R.drawable.button_border);
+                }else {
+                    edt_nameofnominee3.setText("");
+                    edtpercentagesharing3.setText("");
+                    dobofnominee3.setText("");
+                    relationshipapplicant3.setText("");
+                    addone3.setText("");
+                    addtwo3.setText("");
+                    addthree3.setText("");
+                    addstate3.setText("");
+                    addcity3.setText("");
+                    addpincode3.setText("");
+                    document_typeNominee_3.setText("");
+                    edt_gurdianname3.setText("");
+                        edt_gurdianaddress_one3.setText("");
+                        edt_gurdianaddress_two3.setText("");
+                        edt_gurdianaddress_three3.setText("");
+                        txt_gurdian_city3.setText("");
+                        relationshipapplicant_guardian3.setText("");
+                        edittextpincode3.setText("");
+                        document_typeNomineeGurdian_3.setText("");
+                       Third_nominee_image.setImageResource(R.drawable.button_border);
+                       gurdian_imageviewthird.setImageResource(R.drawable.button_border);
+                }}
+             });
+
         rl_addnominelayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -4275,11 +4656,12 @@ public class ReviewFragment extends Fragment {
                             secondnomineactive=false;
 
                         }else{
-                            if(nomineeImage_first && isNum<100 &&!isminornominee){
+                            if(nomineeImage_first||exist_nomineimage1 && isNum<100 &&!isminornominee){
                                 ll_nominesecondlayout.setVisibility(View.VISIBLE);
                                 checkcount=false;
                                 secondnomineactive=true;
                             }else{
+
                                 if(isGurdianValidation &&isNum<100&&nomineeGurdianImage_first){
                                     ll_nominesecondlayout.setVisibility(View.VISIBLE);
                                     checkcount=false;
@@ -4289,8 +4671,8 @@ public class ReviewFragment extends Fragment {
                                         ll_nominesecondlayout.setVisibility(View.VISIBLE);
                                         checkcount=false;
                                         secondnomineactive=true;
-                                    }else{
-                                        Toast.makeText(getActivity(),"Please Fill Nominee Form First ", Toast.LENGTH_LONG).show();
+                                     }else{
+                                        Toast.makeText(getActivity(),"Please Fill Nominee Form First 2", Toast.LENGTH_LONG).show();
                                     }}
                             } }}
                     else
@@ -4308,7 +4690,7 @@ public class ReviewFragment extends Fragment {
                                 checkcount=false;
 
                             }else if(isAllFieldsChecked&&secondnomineactive){
-                                isAllFieldsChecked_of_secondNominee=CheckAllFields_of_nomineesecond();
+                                //isAllFieldsChecked_of_secondNominee=CheckAllFields_of_nomineesecond();
                                 if(isAllFieldsChecked_of_secondNominee&&nomineeImage_second){
                                     double nomineoneshare_percent,nomineonetwoshare_percent;
                                     nomineoneshare_percent=Double.parseDouble(edtpercentagesharing.getText().toString());
@@ -4321,6 +4703,7 @@ public class ReviewFragment extends Fragment {
                                         if (nomineeImage_second && calculate > 100.00) {
                                             Toast.makeText(getActivity(),"Sum of percentage sharing should be 100%", Toast.LENGTH_LONG).show();
                                         }else{
+
                                             ll_nominethirdlayout.setVisibility(View.VISIBLE);
                                             checkcount = true;
                                             thirdnomineactive=true;
@@ -4340,16 +4723,16 @@ public class ReviewFragment extends Fragment {
                                 Toast.makeText(getActivity(),"Please Fill Nominee Form Second", Toast.LENGTH_LONG).show();
                             } } }
                 }else{
-
-
-                    Toast.makeText(getActivity(),"value=>"+value, Toast.LENGTH_LONG).show();
-                    Toast.makeText(getActivity(),"data"+isAllFieldsChecked, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getActivity(),"value=>"+value, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getActivity(),"data"+isAllFieldsChecked, Toast.LENGTH_LONG).show();
                     String percentage=edtpercentagesharing.getText().toString();
-                    double isNum = Double.parseDouble(percentage);
-                    Toast.makeText(getActivity(),"percentage"+percentage, Toast.LENGTH_LONG).show();
-
+                    double isNum;
+                    if(percentage.equals("")){
+                        isNum=0.0;
+                    }else {
+                        isNum = Double.parseDouble(percentage);
+                    }
                     if(isAllFieldsChecked&&value==1&&isNum==100){
-
                         Toast.makeText(getActivity(),"No more percentage to share", Toast.LENGTH_LONG).show();
 
                     }else if(isAllFieldsChecked&&value==1&&isNum<100){
@@ -4357,13 +4740,10 @@ public class ReviewFragment extends Fragment {
                         checkcount=false;
                         secondnomineactive=true;
                     }else {
-                        Toast.makeText(getActivity(),"Please Fill Nominee Form First 2", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(),"Please Fill Nominee Form First 1 ", Toast.LENGTH_LONG).show();
                     }
                 }}
-        });
-
-
-
+              });
         unitStockDelivery = getActivity().findViewById(R.id.unitStockDelivery);
         checkBoxaddress = getActivity().findViewById(R.id.checkBoxaddress);
         checkBoxaddress_2 = getActivity().findViewById(R.id.checkBoxaddress_2);
@@ -4402,65 +4782,230 @@ public class ReviewFragment extends Fragment {
         addthree = getActivity().findViewById(R.id.addthree);
         addpincode = getActivity().findViewById(R.id.addpincode);
         dobofnominee1=getActivity().findViewById(R.id.dobofnominee1);
+        dobofnominee1.addTextChangedListener(new TextWatcher() {
+            private String current = "";
+            private String ddmmyyyy = "DDMMYYYY";
+            private Calendar cal = Calendar.getInstance();
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!s.toString().equals(current)) {
+                    String clean = s.toString().replaceAll("[^\\d.]", "");
+                    String cleanC = current.replaceAll("[^\\d.]", "");
+                    int cl = clean.length();
+                    int sel = cl;
+                    for (int i = 2; i <= cl && i < 6; i += 2) {sel++;}
+                    if (clean.equals(cleanC)) sel--;
+                    if (clean.length() < 8){
+                        clean = clean + ddmmyyyy.substring(clean.length());
+                    }else{
+                        int day  = Integer.parseInt(clean.substring(0,2));
+                        int mon  = Integer.parseInt(clean.substring(2,4));
+                        int year = Integer.parseInt(clean.substring(4,8));
+                        if(mon > 12) mon = 12;
+                        cal.set(Calendar.MONTH, mon-1);
+                        year = (year<1900)?1900:(year>2100)?2100:year;
+                        System.out.println("year==>" + year);
+                        cal.set(Calendar.YEAR, year);
+                        day = (day > cal.getActualMaximum(Calendar.DATE))? cal.getActualMaximum(Calendar.DATE):day;
+                        clean = String.format("%02d%02d%02d",day, mon, year);
+                        Calendar calendar = Calendar.getInstance();
+                        int currentyear = calendar.get(Calendar.YEAR);
+                        int yeardiff=currentyear-year;
+                        System.out.println("DOB of One" +year+"-"+(mon+1)+"-"+day);
+                        DOB1=year+"-"+(mon+1)+"-"+day;
+                        if(yeardiff<=18){
+                            minorToggle_news.setChecked(true);
+                            main_nominee_layoutsss.setVisibility(View.VISIBLE);
+                            guardiandetailslayout.setVisibility(View.VISIBLE);
+                            toggleValue = "yes";
+                            isminornominee=true;
+                        }else{
+                            isminornominee=false;
+                            toggle_button.setVisibility(View.GONE);
+                            guardiandetailslayout.setVisibility(View.GONE);
+                            toggleValue = "no";
+                        }}
+
+                    clean = String.format("%s/%s/%s", clean.substring(0, 2),
+                            clean.substring(2, 4),
+                            clean.substring(4, 8));
+                    sel = sel < 0 ? 0 : sel;
+                    current = clean;
+                    dobofnominee1.setText(current);
+                    dobofnominee1.setSelection(sel < current.length() ? sel : current.length());
+                }}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                System.out.println("afterTextChanged data" + new String(s.toString()));
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+           });
+
         dobofnominee2=getActivity().findViewById(R.id.dobofnominee2);
         dobofnominee3=getActivity().findViewById(R.id.dobofnominee3);
+
+        dobofnominee2.addTextChangedListener(new TextWatcher() {
+            private String current = "";
+            private String ddmmyyyy = "DDMMYYYY";
+            private Calendar cal = Calendar.getInstance();
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!s.toString().equals(current)) {
+                    String clean = s.toString().replaceAll("[^\\d.]", "");
+                    String cleanC = current.replaceAll("[^\\d.]", "");
+                    int cl = clean.length();
+                    int sel = cl;
+                    for (int i = 2; i <= cl && i < 6; i += 2) {sel++;}
+                    if (clean.equals(cleanC)) sel--;
+                    if (clean.length() < 8){
+                        clean = clean + ddmmyyyy.substring(clean.length());
+                    }else{
+                        int day  = Integer.parseInt(clean.substring(0,2));
+                        int mon  = Integer.parseInt(clean.substring(2,4));
+                        int year = Integer.parseInt(clean.substring(4,8));
+                        if(mon > 12) mon = 12;
+                        cal.set(Calendar.MONTH, mon-1);
+                        year = (year<1900)?1900:(year>2100)?2100:year;
+                        System.out.println("year==>" + year);
+                        cal.set(Calendar.YEAR, year);
+                        day = (day > cal.getActualMaximum(Calendar.DATE))? cal.getActualMaximum(Calendar.DATE):day;
+                        clean = String.format("%02d%02d%02d",day, mon, year);
+
+                        System.out.println("DOB of One" +year+"-"+(mon+1)+"-"+day);
+                        DOB2=year+"-"+(mon+1)+"-"+day;
+                        Calendar calendar = Calendar.getInstance();
+                        int currentyear = calendar.get(Calendar.YEAR);
+                        int yeardiff=currentyear-year;
+                        if(yeardiff<=18){
+                            guardiandetailslayout_secondNominee.setVisibility(View.VISIBLE);
+                            is_Second_minornominee=true;
+                        }else{
+                            is_Second_minornominee=false;
+                            guardiandetailslayout_secondNominee.setVisibility(View.GONE);
+
+                        }
+                    }
+
+                    clean = String.format("%s/%s/%s", clean.substring(0, 2),
+                            clean.substring(2, 4),
+                            clean.substring(4, 8));
+                    sel = sel < 0 ? 0 : sel;
+                    current = clean;
+                    dobofnominee2.setText(current);
+                    dobofnominee2.setSelection(sel < current.length() ? sel : current.length());
+                }}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                System.out.println("afterTextChanged data" + new String(s.toString()));
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        dobofnominee3.addTextChangedListener(new TextWatcher() {
+            private String current = "";
+            private String ddmmyyyy = "DDMMYYYY";
+            private Calendar cal = Calendar.getInstance();
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!s.toString().equals(current)) {
+                    String clean = s.toString().replaceAll("[^\\d.]", "");
+                    String cleanC = current.replaceAll("[^\\d.]", "");
+                    int cl = clean.length();
+                    int sel = cl;
+                    for (int i = 2; i <= cl && i < 6; i += 2) {sel++;}
+                    if (clean.equals(cleanC)) sel--;
+                    if (clean.length() < 8){
+                        clean = clean + ddmmyyyy.substring(clean.length());
+                    }else{
+                        int day  = Integer.parseInt(clean.substring(0,2));
+                        int mon  = Integer.parseInt(clean.substring(2,4));
+                        int year = Integer.parseInt(clean.substring(4,8));
+                        if(mon > 12) mon = 12;
+                        cal.set(Calendar.MONTH, mon-1);
+                        year = (year<1900)?1900:(year>2100)?2100:year;
+                        System.out.println("year==>" + year);
+                        cal.set(Calendar.YEAR, year);
+                        System.out.println("DOB of One" +year+"-"+(mon+1)+"-"+day);
+                        DOB3=year+"-"+(mon+1)+"-"+day;
+                        day = (day > cal.getActualMaximum(Calendar.DATE))? cal.getActualMaximum(Calendar.DATE):day;
+                        clean = String.format("%02d%02d%02d",day, mon, year);
+                        Calendar calendar = Calendar.getInstance();
+                        int currentyear = calendar.get(Calendar.YEAR);
+                        int yeardiff=currentyear-year;
+                        if(yeardiff<=18){
+                            guardiandetailslayout_thirdNominee.setVisibility(View.VISIBLE);
+                            is_Third_minornominee=true;
+
+                        }else{
+                            is_Third_minornominee=false;
+                            //toggle_button.setVisibility(View.GONE);
+                            guardiandetailslayout_thirdNominee.setVisibility(View.GONE);
+                            //toggleValue = "no";
+                        }
+                       }
+
+                    clean = String.format("%s/%s/%s", clean.substring(0, 2),
+                            clean.substring(2, 4),
+                            clean.substring(4, 8));
+                    sel = sel < 0 ? 0 : sel;
+                    current = clean;
+                    dobofnominee3.setText(current);
+                    dobofnominee3.setSelection(sel < current.length() ? sel : current.length());
+                 }}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                System.out.println("afterTextChanged data" + new String(s.toString()));
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
         discountMenu.setBackgroundResource(R.drawable.gray_btn);
         edt_name_of_nominee2 = getActivity().findViewById(R.id.edt_name_of_nominee2);
         edtpercentagesharing2 = getActivity().findViewById(R.id.edtpercentagesharing2);
-
         edtpercentagesharing2.setFilters(new InputFilter[]{ new InputFilterMinMax("1.00", "100.00"),new InputFilter.LengthFilter(5) {
                 }
                 }
-        );
+             );
 
-        addres_one_of_nominee2 = getActivity().findViewById(R.id.addres_one_of_nominee2);
-        addres_two_of_nominee2 = getActivity().findViewById(R.id.addres_two_of_nominee2);
-        addres_three_of_nominee2 = getActivity().findViewById(R.id.addres_three_of_nominee2);
-        addpincode2 = getActivity().findViewById(R.id.addpincode2);
-        addcountry2 = getActivity().findViewById(R.id.addcountry2);
-        edt_gurdianname2 = getActivity().findViewById(R.id.edt_gurdianname2);
-        edt_gurdianaddress2 = getActivity().findViewById(R.id.edt_gurdianaddress2);
-        edt_gurdianaddress_two2 = getActivity().findViewById(R.id.edt_gurdianaddress_two2);
-        edt_gurdianaddress_three2 = getActivity().findViewById(R.id.edt_gurdianaddress_three2);
-        edittextpincode2 = getActivity().findViewById(R.id.edittextpincode2);
-
-        relationshipapplicant2 = getActivity().findViewById(R.id.relationshipapplicant2);
-
-        relationshipapplicant2.setOnClickListener(new View.OnClickListener() {
+         addres_one_of_nominee2 = getActivity().findViewById(R.id.addres_one_of_nominee2);
+         addres_two_of_nominee2 = getActivity().findViewById(R.id.addres_two_of_nominee2);
+         addres_three_of_nominee2 = getActivity().findViewById(R.id.addres_three_of_nominee2);
+         addpincode2 = getActivity().findViewById(R.id.addpincode2);
+         addcountry2 = getActivity().findViewById(R.id.addcountry2);
+         edt_gurdianname2 = getActivity().findViewById(R.id.edt_gurdianname2);
+         edt_gurdianaddress2 = getActivity().findViewById(R.id.edt_gurdianaddress2);
+         edt_gurdianaddress_two2 = getActivity().findViewById(R.id.edt_gurdianaddress_two2);
+         edt_gurdianaddress_three2 = getActivity().findViewById(R.id.edt_gurdianaddress_three2);
+         edittextpincode2 = getActivity().findViewById(R.id.edittextpincode2);
+         relationshipapplicant2 = getActivity().findViewById(R.id.relationshipapplicant2);
+         relationshipapplicant2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Relationshipmethod(relationshipapplicant2);
             }});
-
-
-
-        addstate2 = getActivity().findViewById(R.id.addstate2);
-        percentagesharingofnomineeone2 = getActivity().findViewById(R.id.percentagesharingofnomineeone2);
-        addcity2 = getActivity().findViewById(R.id.addcity2);
-        txt_gurdian_city2 = getActivity().findViewById(R.id.txt_gurdian_city2);
-        txt_gurdian_state2 = getActivity().findViewById(R.id.txt_gurdian_state2);
-
-
-        edt_nameofnominee3 = getActivity().findViewById(R.id.edt_nameofnominee3);
-        edtpercentagesharing3 = getActivity().findViewById(R.id.edtpercentagesharing3);
-
-        edtpercentagesharing3.setFilters(new InputFilter[]{ new InputFilterMinMax("1.00", "100.00"),new InputFilter.LengthFilter(5) {
-                }
-                }
-        );
-
-        relationshipapplicant3 = getActivity().findViewById(R.id.relationshipapplicant3);
-
-        relationshipapplicant3.setOnClickListener(new View.OnClickListener() {
+         addstate2 = getActivity().findViewById(R.id.addstate2);
+         percentagesharingofnomineeone2 = getActivity().findViewById(R.id.percentagesharingofnomineeone2);
+         addcity2 = getActivity().findViewById(R.id.addcity2);
+         txt_gurdian_city2 = getActivity().findViewById(R.id.txt_gurdian_city2);
+         txt_gurdian_state2 = getActivity().findViewById(R.id.txt_gurdian_state2);
+         edt_nameofnominee3 = getActivity().findViewById(R.id.edt_nameofnominee3);
+         edtpercentagesharing3 = getActivity().findViewById(R.id.edtpercentagesharing3);
+         edtpercentagesharing3.setFilters(new InputFilter[]{ new InputFilterMinMax("1.00", "100.00"),new InputFilter.LengthFilter(5) {
+                }});
+         relationshipapplicant3 = getActivity().findViewById(R.id.relationshipapplicant3);
+         relationshipapplicant3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Relationshipmethod(relationshipapplicant3);
             }
-        });
-
-
-
+           });
         addone3 = getActivity().findViewById(R.id.addone3);
         addtwo3 = getActivity().findViewById(R.id.addtwo3);
         addthree3 = getActivity().findViewById(R.id.addthree3);
@@ -4471,13 +5016,13 @@ public class ReviewFragment extends Fragment {
         edt_gurdianaddress_two3 = getActivity().findViewById(R.id.edt_gurdianaddress_two3);
         edt_gurdianaddress_three3 = getActivity().findViewById(R.id.edt_gurdianaddress_three3);
         edittextpincode3 = getActivity().findViewById(R.id.edittextpincode3);
-
         addstate3 = getActivity().findViewById(R.id.addstate3);
         addcity3 = getActivity().findViewById(R.id.addcity3);
         txt_gurdian_city3 = getActivity().findViewById(R.id.txt_gurdian_city3);
         txt_gurdian_state3 = getActivity().findViewById(R.id.txt_gurdian_state3);
-
-
+        gurdian_address1=getActivity().findViewById(R.id.gurdian_address1);
+        gurdian_address2=getActivity().findViewById(R.id.gurdian_address2);
+        gurdian_address3=getActivity().findViewById(R.id.gurdian_address3);
         edt_gurdiannameone = getActivity().findViewById(R.id.edt_gurdiannameone);
         edt_gurdianaddress_one = getActivity().findViewById(R.id.edt_gurdianaddress_one);
         edt_gurdianaddress_two = getActivity().findViewById(R.id.edt_gurdianaddress_two);
@@ -4485,48 +5030,44 @@ public class ReviewFragment extends Fragment {
         editgurdianpincode = getActivity().findViewById(R.id.editgurdianpincode);
         txt_gurdian_city = getActivity().findViewById(R.id.txt_gurdian_city);
         txt_gurdian_state = getActivity().findViewById(R.id.txt_gurdian_state);
-
-
         discountMenu.setTextColor(Color.parseColor("#A2A2A2"));
         discountBrokerage.setVisibility(View.GONE);
         premiumMenu.setBackgroundResource(R.mipmap.bottombtn);
         premiumMenu.setTextColor(Color.parseColor("#ffffff"));
-
         turnOverEdit = getActivity().findViewById(R.id.turnOverEdit);
         edtothername = getActivity().findViewById(R.id.edtothername);
         addressProofImage = getActivity().findViewById(R.id.addressProofImage);
         brokageImg = getActivity().findViewById(R.id.brokageImg);
         varificationVideo = getActivity().findViewById(R.id.varificationVideo);
-
         brokrafeNotes = getActivity().findViewById(R.id.brokrafeNotes);
         mobileLinkText = getActivity().findViewById(R.id.mobileLinkText);
         howToLonkTextView = getActivity().findViewById(R.id.howToLonkTextView);
         viewBrockrageReview = getActivity().findViewById(R.id.viewBrockrageReview);
-
         identificationproof = getActivity().findViewById(R.id.identificationproof);
-
+        identificationproof_of_secondnomine=getActivity().findViewById(R.id.identificationproof_of_secondnomine);
+        identificationproof_of_thirdnomine=getActivity().findViewById(R.id.identificationproof_of_thirdnomine);
         gurdianidentificationdocument=getActivity().findViewById(R.id.gurdianidentificationdocument);
         Second_gurdianidentificationdocument=getActivity().findViewById(R.id.Second_gurdianidentificationdocument);
         gurdianidentificationdocument_thirdnominee=getActivity().findViewById(R.id.gurdianidentificationdocument_thirdnominee);
-
-        identificationproof_of_secondnomine=getActivity().findViewById(R.id.identificationproof_of_secondnomine);
-        identificationproof_of_thirdnomine=getActivity().findViewById(R.id.identificationproof_of_thirdnomine);
         pancardlinearlayout = getActivity().findViewById(R.id.pancardlinearlayout);
         save_brockrage = getActivity().findViewById(R.id.save_brockrage);
         llSAveBrokrage = getActivity().findViewById(R.id.llSAveBrokrage);
         nomineetabslayout = getActivity().findViewById(R.id.nomineetabslayout);
         guardiandetailslayout = getActivity().findViewById(R.id.guardiandetailslayout);
         guardiandetailslayout_secondNominee=getActivity().findViewById(R.id.guardiandetailslayout_secondNominee);
-
         guardiandetailslayout_thirdNominee=getActivity().findViewById(R.id.guardiandetailslayout_thirdNominee);
-
         if(!minorToggle_news.isChecked()){
             guardiandetailslayout.setVisibility(View.GONE);
         }
-        //relationshipapplicant=getActivity().findViewById(R.id.relationshipapplic);
-
         closeBrockrageBox = getActivity().findViewById(R.id.closeBrockrageBox);
         closeAdditonalDocs = getActivity().findViewById(R.id.closeAdditonalDocs);
+        document_typeNominee_1= getActivity().findViewById(R.id.document_typeNominee_1);
+        document_typeNominee_2= getActivity().findViewById(R.id.document_typeNominee_2);
+        document_typeNominee_3= getActivity().findViewById(R.id.document_typeNominee_3);
+        document_typeNomineeGurdian_1= getActivity().findViewById(R.id.document_typeNomineeGurdian_1);
+        document_typeNomineeGurdian_2= getActivity(). findViewById(R.id.document_typeNomineeGurdian_2);
+        document_typeNomineeGurdian_3= getActivity().findViewById(R.id.document_typeNomineeGurdian_3);
+        DocumentType();
         closeAddNominee = getActivity().findViewById(R.id.closeAddNominee);
         closeAddNominees = getActivity().findViewById(R.id.closeAddNominees);
         submit_btn_nomine_detail = getActivity().findViewById(R.id.submit_btn_nomine_details);
@@ -4538,16 +5079,12 @@ public class ReviewFragment extends Fragment {
         Cash_Delivery_ArrayList = new ArrayList<BrokerageModel>();
         Cash_Delivery_Array = new ArrayList<String>();
         Cash_Delivery_Array_description = new ArrayList<String>();
-
         derivative_future_ArrayList = new ArrayList<BrokerageModel>();
         derivative_future_Array = new ArrayList<String>();
-
         derivatives_options_ArrayList = new ArrayList<BrokerageModel>();
         derivatives_options_Array = new ArrayList<String>();
-
         currency_derivatives_futures_ArrayList = new ArrayList<BrokerageModel>();
         currency_derivatives_futures_Array = new ArrayList<String>();
-
         currency_derivatives_options_ArrayList = new ArrayList<BrokerageModel>();
         currency_derivatives_options_Array = new ArrayList<String>();
 
@@ -4690,7 +5227,6 @@ public class ReviewFragment extends Fragment {
                                                             return false;
                                                         }
                                                     });
-
                                                     brokerage_dialog.setContentView(view1);
                                                     brokerage_dialog.show();
                                                     if (acProgressFlower != null) {
@@ -4715,9 +5251,7 @@ public class ReviewFragment extends Fragment {
                                             if (acProgressFlower.isShowing()) {
                                                 acProgressFlower.dismiss();
                                             }
-                                        }
-                                    }
-                                }
+                                        } } }
 
                                 @Override
                                 public void onError(ANError error) {
@@ -4726,21 +5260,14 @@ public class ReviewFragment extends Fragment {
                                         if (acProgressFlower.isShowing()) {
                                             acProgressFlower.dismiss();
                                         }
-                                    }
-                                    // handle error
-                                }
-                            });
+                                    } }});
 
-                } catch (Exception e) {
+                }catch (Exception e) {
                     e.printStackTrace();
                     if (acProgressFlower != null) {
                         if (acProgressFlower.isShowing()) {
                             acProgressFlower.dismiss();
-                        }
-                    }
-                }
-
-            }
+                        } } } }
         });
 
 
@@ -4766,7 +5293,6 @@ public class ReviewFragment extends Fragment {
                     Cash_Delivery_Array_description.clear();
                     AndroidNetworking.get(url)
                             .setOkHttpClient(UtilsClass.getSlrClubClient(getActivity()))
-                            //.addJSONObjectBody(AdditionalObj) // posting json
                             .setTag("test")
                             .setPriority(Priority.MEDIUM)
                             .build()
@@ -4781,7 +5307,7 @@ public class ReviewFragment extends Fragment {
                                         System.out.println("GetBrokerageDetail : stock_delivery : " + "status : " + status);
                                         System.out.println("GetBrokerageDetail : stock_delivery : " + "message : " + message);
 
-                                        if (status.equalsIgnoreCase("success")) {
+                                        if(status.equalsIgnoreCase("success")) {
                                             JSONObject data = response.getJSONObject("data");
                                             if (data.has("NSE_CASH_DELIVERY_BrokerageDetail")) {
                                                 JSONArray NSE_CASH_DELIVERY_BrokerageDetail = data.getJSONArray("NSE_CASH_DELIVERY_BrokerageDetail");
@@ -4832,11 +5358,8 @@ public class ReviewFragment extends Fragment {
                                                         public boolean onQueryTextSubmit(String query) {
                                                             return false;
                                                         }
-
                                                         @Override
                                                         public boolean onQueryTextChange(String newText) {
-                                                            //inside on query text change method we are
-                                                            //calling a method to filter our recycler view.
                                                             filter_delivery(newText);
                                                             return false;
                                                         }
@@ -4859,8 +5382,7 @@ public class ReviewFragment extends Fragment {
                                                         }
                                                     }
                                                 }
-                                            }
-                                        }
+                                            } }
 
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -6510,203 +7032,22 @@ public class ReviewFragment extends Fragment {
                     if (acProgressFlower != null) {
                         if (acProgressFlower.isShowing()) {
                             acProgressFlower.dismiss();
-                        }
-                    }
-                }
-
-            }
-        });
-
-
-
-
-
-       /* commodity_derivatives_options.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                hideKeyboardReview(getActivity());
-
-                String url = WebServices.getBaseURL + WebServices.GetBrokerageDetail + "?KeyFor=Commodity_Option";
-                try {
-                    acProgressFlower = new ACProgressFlower.Builder(getActivity())
-                            .direction(ACProgressConstant.DIRECT_CLOCKWISE)
-                            .themeColor(WHITE)
-                            .fadeColor(DKGRAY).build();
-                    if (acProgressFlower != null) {
-                        acProgressFlower.show();
-                    }
-
-                    commodity_derivatives_options_ArrayList.clear();
-                    commodity_derivatives_options_Array.clear();
-
-                    AndroidNetworking.get(url)
-                            .setOkHttpClient(UtilsClass.getSlrClubClient(getActivity()))
-                            //  .addJSONObjectBody(AdditionalObj) // posting json
-                            .setTag("test")
-                            .setPriority(Priority.MEDIUM)
-                            .build()
-                            .getAsJSONObject(new JSONObjectRequestListener() {
-                                @Override
-                                public void onResponse(JSONObject response) {
-                                    System.out.println("GetBrokerageDetail : commodity_derivatives_options : " + "response : " + response.toString());
-                                    try{
-                                        String status = response.getString("status");
-                                        String message = response.getString("message");
-
-                                        System.out.println("GetBrokerageDetail : commodity_derivatives_options : " + "status : " + status);
-                                        System.out.println("GetBrokerageDetail : commodity_derivatives_options : " + "message : " + message);
-
-                                        if (status.equalsIgnoreCase("success")) {
-                                            JSONObject data = response.getJSONObject("data");
-                                            if (data.has("MCX_Option_BrokerageDetail")) {
-                                                JSONArray MCX_Option_BrokerageDetail = data.getJSONArray("MCX_Option_BrokerageDetail");
-
-
-                                                System.out.println("GetBrokerageDetail : commodity_derivatives_options : " + "MCX_Option_BrokerageDetail : " + MCX_Option_BrokerageDetail);
-
-                                                if (MCX_Option_BrokerageDetail != null && MCX_Option_BrokerageDetail.length() != 0) {
-                                                    for (int i = 0; i < MCX_Option_BrokerageDetail.length(); i++) {
-                                                        JSONObject MCX_Option_obj = MCX_Option_BrokerageDetail.getJSONObject(i);
-
-                                                        String MODULE_NO = MCX_Option_obj.getString("MODULE_NO");
-                                                        String ONESIDEPER = MCX_Option_obj.getString("ONESIDEPER");
-                                                        String ONESIDEMIN = MCX_Option_obj.getString("ONESIDEMIN");
-                                                        String COMPANY_CODE = MCX_Option_obj.getString("COMPANY_CODE");
-                                                        String DESCRIPTION = MCX_Option_obj.getString("DESCRIPTION");
-
-                                                        System.out.println("GetBrokerageDetail : commodity_derivatives_options : " + "MODULE_NO : " + MODULE_NO);
-                                                        System.out.println("GetBrokerageDetail : commodity_derivatives_options : " + "DELIVERYPER : " + ONESIDEPER);
-                                                        System.out.println("GetBrokerageDetail : commodity_derivatives_options : " + "DELIVERYMIN : " + ONESIDEMIN);
-                                                        System.out.println("GetBrokerageDetail : commodity_derivatives_options : " + "COMPANY_CODE : " + COMPANY_CODE);
-                                                        System.out.println("GetBrokerageDetail : commodity_derivatives_options : " + "DESCRIPTION : " + DESCRIPTION);
-
-                                                        commodity_derivatives_options_ArrayList.add(new BrokerageModel(MODULE_NO, ONESIDEPER, ONESIDEMIN, COMPANY_CODE, DESCRIPTION, ""));
-                                                        commodity_derivatives_options_Array.add(ONESIDEMIN);
-
-                                                        System.out.println("GetBrokerageDetail : commodity_derivatives_options : " + "commodity_derivatives_options_ArrayList : " + commodity_derivatives_options_ArrayList);
-                                                        System.out.println("GetBrokerageDetail : commodity_derivatives_options : " + "commodity_derivatives_options_Array : " + commodity_derivatives_options_Array);
-                                                    }
-
-                                                    final Dialog dialog = new Dialog(getActivity());
-                                                    LayoutInflater inflater = LayoutInflater.from(getActivity());
-                                                    View view1 = inflater.inflate(R.layout.search_dialog, null);
-                                                    final ListView listView = view1.findViewById(R.id.listView);
-                                                    SearchView searchView = view1.findViewById(R.id.searchView);
-                                                    searchView.clearFocus();
-                                                    //searchView.requestFocus();
-
-                                                    final ArrayAdapter<String> stringArrayAdapter = new ArrayAdapter<String>(
-                                                            getActivity(),
-                                                            android.R.layout.simple_list_item_1,
-                                                            commodity_derivatives_options_Array);
-
-                                                    listView.setAdapter(stringArrayAdapter);
-                                                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                                        @Override
-                                                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                                                            String selectedFromList = String.valueOf(listView.getItemAtPosition(i));
-                                                            System.out.println("GetBrokerageDetail : commodity_derivatives_options : " + "selectedFromList : " + selectedFromList);
-
-                                                            commodity_derivatives_options_MODULE_NO = commodity_derivatives_options_ArrayList.get(i).getMODULE_NO();
-                                                            System.out.println("GetBrokerageDetail : commodity_derivatives_options : " + "commodity_derivatives_options_MODULE_NO : " + commodity_derivatives_options_MODULE_NO);
-
-                                                            commodity_derivatives_options_COMPANY_CODE = commodity_derivatives_options_ArrayList.get(i).getCOMPANY_CODE();
-                                                            System.out.println("GetBrokerageDetail : commodity_derivatives_options : " + "commodity_derivatives_options_COMPANY_CODE : " + commodity_derivatives_options_COMPANY_CODE);
-
-                                                            dialog.dismiss();
-
-                                                            commodity_derivatives_options.setText(selectedFromList);
-                                                        }
-                                                    });
-
-                                                    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                                                        @Override
-                                                        public boolean onQueryTextSubmit(String newText) {
-                                                            return false;
-                                                        }
-
-                                                        @Override
-                                                        public boolean onQueryTextChange(String newText) {
-                                                            stringArrayAdapter.getFilter().filter(newText);
-                                                            return false;
-                                                        }
-                                                    });
-
-                                                    dialog.setContentView(view1);
-                                                    dialog.show();
-
-                                                    if (acProgressFlower != null) {
-                                                        if (acProgressFlower.isShowing()) {
-                                                            acProgressFlower.dismiss();
-                                                        }
-                                                    }
-
-                                                } else {
-                                                    Toast.makeText(getActivity(), "No Data Found!!", Toast.LENGTH_SHORT).show();
-                                                    if (acProgressFlower != null) {
-                                                        if (acProgressFlower.isShowing()) {
-                                                            acProgressFlower.dismiss();
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-
-
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                        System.out.println("GetBrokerageDetail : commodity_derivatives_options : " + "JSONException : " + e.getMessage());
-                                        if (acProgressFlower != null) {
-                                            if (acProgressFlower.isShowing()) {
-                                                acProgressFlower.dismiss();
-                                            }
-                                        }
-                                    }
-                                }
-
-                                @Override
-                                public void onError(ANError error) {
-                                    System.out.println("GetBrokerageDetail : commodity_derivatives_options :  " + "error : " + error.getErrorBody());
-                                    if (acProgressFlower != null) {
-                                        if (acProgressFlower.isShowing()) {
-                                            acProgressFlower.dismiss();
-                                        }
-                                    }
-                                    // handle error
-                                }
-                            });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    if (acProgressFlower != null) {
-                        if (acProgressFlower.isShowing()) {
-                            acProgressFlower.dismiss();
-                        }
-                    }
-                }
-
-            }
-        });*/
-
-
-        if (AppInfo.IsLoanApplied.equals("Yes")) {
+                        }}}}
+                   });
+        if(AppInfo.IsLoanApplied.equals("Yes")) {
             getLoanDetailLayout.setVisibility(View.VISIBLE);
-        } else {
+        }else{
             getLoanDetailLayout.setVisibility(View.GONE);
         }
-
         submit_btn_getLoan_detail.setBackgroundColor(Color.parseColor("#00000000"));
         submit_btn_getLoan_detail.setBackgroundResource(R.mipmap.bottombtn);
         submit_btn_getLoan_detail.setEnabled(true);
         getRes = new getResponse(getActivity());
-
         mobileLinkText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 openAaadharQuestionDialog(getActivity());
-            }
-        });
-
+            }});
         howToLonkTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -6714,36 +7055,24 @@ public class ReviewFragment extends Fragment {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(ADHAARSITE_URL));
                 startActivity(intent);
-            }
-        });
+            }});
 
         addressproofstr = AppInfo.getPreference(getActivity(), "addressproof");
-
         System.out.println("addressproofstr_review" + addressproofstr);
-
-        if (addressproofstr.equals("0")) {
-
+        if(addressproofstr.equals("0")) {
             userDocuments userDocs = FinalApplicationForm.getUserDocuments();
-
-            if (userDocs != null) {
-
+            if(userDocs != null) {
                 addressproofstr = userDocs.getOtherAddressProofType();
-
-            } else {
-
+            }else{
                 addressproofstr = "Aadhar Card";
             }
-        } else {
-
+           }else{
             addressproofstr = "Aadhar Card";
         }
-
         addressProof.setText(addressproofstr);
         bottomSheetBehaviorBrockrage = BottomSheetBehavior.from(getActivity().findViewById(R.id.selectBrockraglayoutBottomSheet));
-
         initListenersBrockrage();
         bottomSheetBehaviorBrockrage.setState(BottomSheetBehavior.STATE_HIDDEN);
-
         bottomSheetBehaviorBrockrage.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
@@ -6751,21 +7080,17 @@ public class ReviewFragment extends Fragment {
                     bottomSheetBehaviorBrockrage.setState(BottomSheetBehavior.STATE_EXPANDED);
                 }
             }
-
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
             }
 
         });
-
         setUpAdditionalUI();
         radioyesbutton_yes.setChecked(false);
         radionobutton_no.setChecked(false);
-
         bottomSheetBehaviorAdditionDoc = BottomSheetBehavior.from(getActivity().findViewById(R.id.additionalDoc));
         bottomSheetBehaviorAddNominee = BottomSheetBehavior.from(getActivity().findViewById(R.id.addNominee));
         bottomSheetBehaviorAddNominees = BottomSheetBehavior.from(getActivity().findViewById(R.id.addNominees));
-
         initListenersAdditionalDoc();
         bottomSheetBehaviorAdditionDoc.setState(BottomSheetBehavior.STATE_HIDDEN);
         bottomSheetBehaviorAdditionDoc.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
@@ -6773,13 +7098,10 @@ public class ReviewFragment extends Fragment {
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if (newState == BottomSheetBehavior.STATE_DRAGGING) {
                     bottomSheetBehaviorAdditionDoc.setState(BottomSheetBehavior.STATE_EXPANDED);
-                }
-            }
-
+                } }
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
             }
-
         });
 
         bottomSheetBehaviorAddNominee.setState(BottomSheetBehavior.STATE_HIDDEN);
@@ -6788,8 +7110,7 @@ public class ReviewFragment extends Fragment {
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if (newState == BottomSheetBehavior.STATE_DRAGGING) {
                     bottomSheetBehaviorAddNominee.setState(BottomSheetBehavior.STATE_EXPANDED);
-                }
-            }
+                }}
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
@@ -6826,6 +7147,21 @@ public class ReviewFragment extends Fragment {
                 pickupImage_of_Nominee(titleDoc);
 
             }});
+        identificationproof_of_secondnomine.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                titleDoc = "Nominee_Second";
+                pickupImage_of_Nominee(titleDoc);
+            }
+        });
+
+        identificationproof_of_thirdnomine.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                titleDoc = "Nominee_Third";
+                pickupImage_of_Nominee(titleDoc);
+            }
+        });
 
         Second_gurdianidentificationdocument.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -6852,21 +7188,7 @@ public class ReviewFragment extends Fragment {
         });
 
 
-        identificationproof_of_secondnomine.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                titleDoc = "Nominee_Second";
-                pickupImage_of_Nominee(titleDoc);
-            }
-        });
 
-        identificationproof_of_thirdnomine.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                titleDoc = "Nominee_Third";
-                pickupImage_of_Nominee(titleDoc);
-            }
-        });
 
         rl_uploadBrokrage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -6878,7 +7200,7 @@ public class ReviewFragment extends Fragment {
                 }
             }
         });
-        imageLoader = ImageLoader.getInstance(); // Get singleton instance
+        imageLoader = ImageLoader.getInstance();
         getRes = new getResponse(getActivity());
         reviewWeb = getActivity().findViewById(R.id.reviewWeb);
         EdtAdditionText = getActivity().findViewById(R.id.EdtAdditionText);
@@ -6888,14 +7210,9 @@ public class ReviewFragment extends Fragment {
         addressText = getActivity().findViewById(R.id.addressText);
         userBankText = getActivity().findViewById(R.id.userBankText);
         userEditIncomeText = getActivity().findViewById(R.id.userIncomeeeText);
-
-
         addcity = getActivity().findViewById(R.id.addcity);
         addstate = getActivity().findViewById(R.id.addstate);
         addcountry = getActivity().findViewById(R.id.addcountry);
-
-        // relationshipapplicant = getActivity().findViewById(R.id.relationshipapplicant);
-
         userSelfieText = getActivity().findViewById(R.id.userSelfieText);
         userSignatureText = getActivity().findViewById(R.id.userSignatureText);
         userVarificationText = getActivity().findViewById(R.id.userVarificationText);
@@ -6909,26 +7226,21 @@ public class ReviewFragment extends Fragment {
         userSelfieText.setOnClickListener(onClickListener);
         userSignatureText.setOnClickListener(onClickListener);
         userVarificationText.setOnClickListener(onClickListener);
-
         physicalUpload = getActivity().findViewById(R.id.physicalUpload);
         eSignComplete = getActivity().findViewById(R.id.eSignComplete);
-
         downloadPDF = getActivity().findViewById(R.id.downloadPDF);
         mainScrollview = getActivity().findViewById(R.id.mainScrollview);
         mainScrollview_new = getActivity().findViewById(R.id.mainScrollview_new);
         reviewWeb.setWebViewClient(new WebViewClient());
         reviewWeb.setWebChromeClient(new WebChromeClient());
         reviewWeb.getSettings().setJavaScriptEnabled(true);
-
         reviewWeb.loadUrl("https://www.cdslindia.com/aadhar/loginaadhar.aspx");
 
         if (addressproofstr.equals("Aadhar Card")) {
-
+            llAddressProof.setVisibility(View.GONE);
+        }else {
             llAddressProof.setVisibility(View.GONE);
 
-        } else {
-            llAddressProof.setVisibility(View.GONE);
-            //llAddressProof.setVisibility(View.VISIBLE);
         }
 
         userPanEditText = getActivity().findViewById(R.id.userPanCardEdit);
@@ -7291,7 +7603,8 @@ public class ReviewFragment extends Fragment {
                     View view1 = inflater.inflate(R.layout.search_dialog, null);
                     final ListView listView = view1.findViewById(R.id.listView);
                     SearchView searchView = view1.findViewById(R.id.searchView);
-                    searchView.requestFocus();
+                    searchView.clearFocus();
+                    //searchView.requestFocus();
                     final ArrayAdapter<String> stringArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, cityArray);
                     listView.setAdapter(stringArrayAdapter);
 
@@ -7743,7 +8056,10 @@ public class ReviewFragment extends Fragment {
                     gurdiansaddressselcted=true;
                     gurdiansaddressselcted_ofsecondnominee=true;
                     EkycAddressDetails_ifsave();
+                    gurdian_address2.setVisibility(View.GONE);
+
                 }else{
+                    gurdian_address2.setVisibility(View.VISIBLE);
                     gurdiansaddressselcted_ofsecondnominee=false;
                     edittextpincode2.setText("");
                     edt_gurdianaddress2.setText("");
@@ -7772,8 +8088,10 @@ public class ReviewFragment extends Fragment {
                 if (((CompoundButton) view).isChecked()) {
                     System.out.println("Checked");
                     gurdiansaddressselcted=true;
+                    gurdian_address1.setVisibility(View.GONE);
                     EkycAddressDetails_ifsave();
-                }else {
+                }else{
+                    gurdian_address1.setVisibility(View.VISIBLE);
                     gurdiansaddressselcted=false;
                     editgurdianpincode.setText("");
                     edt_gurdianaddress_one.setText("");
@@ -7781,7 +8099,6 @@ public class ReviewFragment extends Fragment {
                     edt_gurdianaddress_three.setText("");
                     txt_gurdian_city.setText("");
                     txt_gurdian_state.setText("");
-
                 }}
 
             private void EkycAddressDetails_ifsave() {
@@ -7799,9 +8116,11 @@ public class ReviewFragment extends Fragment {
                 if (((CompoundButton) view).isChecked()) {
                     System.out.println("Checked");
                     EkycAddressDetails_ifsave();
-                    //gurdiansaddressselcted_ofsecondnominee
                     gurdiansaddressselcted_ofthirdnominee=true;
+                    gurdian_address3.setVisibility(View.GONE);
+
                 }else{
+                    gurdian_address3.setVisibility(View.VISIBLE);
                     addpincode3.setText("");
                     edt_gurdianaddress_one3.setText("");
                     edt_gurdianaddress_two3.setText("");
@@ -7830,8 +8149,10 @@ public class ReviewFragment extends Fragment {
                     System.out.println("Checked");
                     EkycAddressDetails_ifsave();
                     third_Nominee_Address=true;
+                    nominee_address_different_news3.setVisibility(View.GONE);
 
                 }else{
+                    nominee_address_different_news3.setVisibility(View.VISIBLE);
                     addpincode3.setText("");
                     addone3.setText("");
                     addtwo3.setText("");
@@ -7859,10 +8180,14 @@ public class ReviewFragment extends Fragment {
                 if (((CompoundButton) view).isChecked()) {
 
                     System.out.println("Checked");
-                    secondn_Nominee_Address=true;
+
                     EkycAddressDetails_ifsave();
+                    secondn_Nominee_Address=true;
+                    nominee_address_different_news2.setVisibility(View.GONE);
+
 
                 }else{
+                    nominee_address_different_news2.setVisibility(View.VISIBLE);
                     secondn_Nominee_Address=false;
                     addpincode2.setText("");
                     addres_one_of_nominee2.setText("");
@@ -7881,10 +8206,8 @@ public class ReviewFragment extends Fragment {
                 getRes.getResponseFromURL(WebServices.getBaseURL + WebServices.EkycAddressDetails,
                         "EkycAddressDetails",
                         parameters, "POST");
-
             }
         });
-
 
         checkBoxaddress.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -7892,7 +8215,12 @@ public class ReviewFragment extends Fragment {
                 if (((CompoundButton) view).isChecked()) {
                     System.out.println("Checked");
                     EkycAddressDetails_ifsave();
+                    first_Nominee_Address=true;
+                    nominee_address_different_news.setVisibility(View.GONE);
+
                 }else{
+                    first_Nominee_Address=false;
+                    nominee_address_different_news.setVisibility(View.VISIBLE);
                     addpincode.setText("");
                     addone.setText("");
                     addtwo.setText("");
@@ -8845,12 +9173,12 @@ public class ReviewFragment extends Fragment {
                     pdfOpenintent.setDataAndType(Uri.parse(ImgStrAdditional2), "application/pdf");
                     try {
                         startActivity(pdfOpenintent);
-                    } catch (ActivityNotFoundException e) {
+
+                    }catch (ActivityNotFoundException e) {
 
                     }
                 } else {
-                    Intent i = new Intent(getActivity(),
-                            FullScreenImageView.class);
+                    Intent i = new Intent(getActivity(), FullScreenImageView.class);
                     i.putExtra("URL", ImgStrAdditional2);
                     startActivity(i);
                 }
@@ -9017,13 +9345,6 @@ public class ReviewFragment extends Fragment {
                             @Override
                             public void run() {
                                 if(stateId != null && !stateId.equals("null")) {
-                                    /*if (stateId.equals("4") && !AppInfo.IsDigiLockerStatus)
-                                    {
-                                        System.out.println("ReviewFragment : ", "statusid : " + stateId + "digilockerstatus : " + AppInfo.IsDigiLockerStatus);
-                                        TabLayout tabhost = (TabLayout) getActivity().findViewById(R.id.tabs);
-                                        tabhost.getTabAt(9).select();
-                                    }*/
-                                    // if rejected and digilocker is true
                                     if (stateId.equals("4") && AppInfo.IsDigiLockerStatus) {
                                         System.out.println("ReviewFragment : " + "statusid : " + stateId + "digilockerstatus : " + AppInfo.IsDigiLockerStatus);
                                         System.out.println("TESTURLLL" + ">>" + WebServices.getBaseURL +
@@ -9032,14 +9353,7 @@ public class ReviewFragment extends Fragment {
                                                         WebServices.ChangeStatusReview + "?eKycAppId=" + AppInfo.ekycApplicationId + "&StatusId=7" + "&UserId=" + AppInfo.RM_ID + "&clientCode=",
                                                 "ChangeEKycAppStatus",
                                                 null);
-                                    }
-                                    /*else if (stateId.equals("8") && eSign)
-                                    {
-                                        System.out.println("ReviewFragment : ", "statusid : " + stateId + "digilockerstatus : " + AppInfo.IsDigiLockerStatus + "esign : " + eSign);
-                                        Intent intent = new Intent(getActivity(), SaveClientCode.class);
-                                        startActivity(intent);
-                                    }*/
-                                    else {
+                                    }else{
                                         System.out.println("ReviewFragment : " + "all are ok : show yes or  no dialoge " + "statusid : " + stateId + "digilockerstatus : " + AppInfo.IsDigiLockerStatus + "esign : " + eSign);
                                         checkPermissionsAndOpenFilePicker_display();
 
@@ -9070,8 +9384,8 @@ public class ReviewFragment extends Fragment {
                 getLoanDetails(AppInfo.ekycApplicationId);
 
                 bottomSheetBehaviorAdditionDoc.setState(BottomSheetBehavior.STATE_EXPANDED);
-
-            }});
+            }
+        });
         /***
          *open bottom sheet of nominee
          ***/
@@ -9081,7 +9395,6 @@ public class ReviewFragment extends Fragment {
                 callAddtionalData();
                 getLoanDetails(AppInfo.ekycApplicationId);
                 bottomSheetBehaviorAddNominees.setState(BottomSheetBehavior.STATE_EXPANDED);
-                //bottomSheetBehaviorAddNominee.setState(BottomSheetBehavior.STATE_EXPANDED);
             }});
 
         /***
@@ -9229,14 +9542,6 @@ public class ReviewFragment extends Fragment {
                                     saveNomineedata();
                                 }
                             }
-
-                            //getAllRadioButtonvalue();
-                            //saveNomineedata();
-                            // Send_Nominee_Images();
-                            //nomineedata();
-                            //uploadNomineData();
-                            //callAdditionaldata();
-
                         }}
                     else {
                         nomineedata("select_no");
@@ -9581,7 +9886,6 @@ public class ReviewFragment extends Fragment {
                         submit_btn_additional_detail.setVisibility(View.VISIBLE);
                         //basic_detail_save.setEnabled(false);
                         //basic_detail_save.setBackgroundResource(R.drawable.gray_btn);
-
                     }
                 }
             }
@@ -9589,12 +9893,10 @@ public class ReviewFragment extends Fragment {
         eSignComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
             }
         });
 
-        dobofnominee3.setOnClickListener(new View.OnClickListener() {
+      /*  dobofnominee3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 calendar = Calendar.getInstance();
@@ -9623,13 +9925,7 @@ public class ReviewFragment extends Fragment {
                                 dobofnominee3.setText(birthdateStr);
 
                                 if(yeardiff<=18){
-                                    //minorToggle_news.setChecked(true);
-                                    //percentagesharingodnomineeone.setText("Percentage(%) Sharing Of Guardian one");
-                                    //addressofnomineone.setText("Address of Guardian");
-                                    //main_nominee_layoutsss.setVisibility(View.VISIBLE);
                                     guardiandetailslayout_thirdNominee.setVisibility(View.VISIBLE);
-                                    //toggleValue = "yes";
-
                                     is_Third_minornominee=true;
 
                                 }else{
@@ -9645,9 +9941,9 @@ public class ReviewFragment extends Fragment {
                 datePickerDialog.show();
 
             }
-        });
+        });*/
 
-        dobofnominee2.setOnClickListener(new View.OnClickListener() {
+      /*  dobofnominee2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 calendar = Calendar.getInstance();
@@ -9659,14 +9955,9 @@ public class ReviewFragment extends Fragment {
                             @Override
                             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
                                 //dobofnominee1.setText(day + "-" + (month + 1) + "-" + year);
-
                                 Calendar calendar = Calendar.getInstance();
                                 int currentyear = calendar.get(Calendar.YEAR);
-
                                 int yeardiff=currentyear-year;
-
-
-
                                 String birthdateStr = year+"-"+(month+1)+"-"+day;
                                 DOB2=year+"-"+(month+1)+"-"+day;
                                 int months=month+1;
@@ -9675,26 +9966,14 @@ public class ReviewFragment extends Fragment {
                                 }else {
                                     birthdateStr = day+"/"+(month+1)+"/"+year;
                                 }
-
-
                                 dobofnominee2.setText(birthdateStr);
-
-
                                 if(yeardiff<=18){
-                                    //minorToggle_news.setChecked(true);
-                                    //percentagesharingodnomineeone.setText("Percentage(%) Sharing Of Guardian one");
-                                    //addressofnomineone.setText("Address of Guardian");
-                                    //main_nominee_layoutsss.setVisibility(View.VISIBLE);
                                     guardiandetailslayout_secondNominee.setVisibility(View.VISIBLE);
-                                    //toggleValue = "yes";
-
                                     is_Second_minornominee=true;
-
                                 }else{
                                     is_Second_minornominee=false;
-                                    //toggle_button.setVisibility(View.GONE);
                                     guardiandetailslayout_secondNominee.setVisibility(View.GONE);
-                                    //toggleValue = "no";
+
                                 }
                             }
                         },year, month, dayOfMonth);
@@ -9703,11 +9982,10 @@ public class ReviewFragment extends Fragment {
                 datePickerDialog.show();
 
             }
-        });
+        });*/
 
 
-
-
+/*
         dobofnominee1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -9739,8 +10017,8 @@ public class ReviewFragment extends Fragment {
 
                                 if(yeardiff<=18){
                                     minorToggle_news.setChecked(true);
-                                    percentagesharingodnomineeone.setText("Percentage(%) Sharing Of Guardian one");
-                                    addressofnomineone.setText("Address of Guardian");
+                                    //percentagesharingodnomineeone.setText("Percentage(%) Sharing Of Guardian one");
+                                    //addressofnomineone.setText("Address of Guardian");
                                     main_nominee_layoutsss.setVisibility(View.VISIBLE);
                                     guardiandetailslayout.setVisibility(View.VISIBLE);
                                     toggleValue = "yes";
@@ -9758,7 +10036,7 @@ public class ReviewFragment extends Fragment {
                 datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
                 datePickerDialog.show();
 
-                /*calendar = Calendar.getInstance();
+                calendar = Calendar.getInstance();
                 year = calendar.get(Calendar.YEAR);
                 month = calendar.get(Calendar.MONTH);
                 dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
@@ -9790,46 +10068,25 @@ public class ReviewFragment extends Fragment {
                                     int month = datePicker.getMonth() + 1;
                                     int checkminoryaer = year - 18;
                                     if (checkminoryaer < datePicker.getYear()) {
-
                                         String dateaschoosen=datePicker.getDayOfMonth() + "/" + month + "/" + datePicker.getYear();
-
                                         SimpleDateFormat format = new SimpleDateFormat("MMM dd,yyyy  hh:mm a");
                                         String date = format.format(Date.parse(dateaschoosen));
-                                        //dobofnominee1.setText(datePicker.getDayOfMonth() + "/" + month + "/" + datePicker.getYear());
                                         dobofnominee1.setText(date);
-
                                         Calendar calendar = Calendar.getInstance();
                                         int year = calendar.get(Calendar.YEAR);
-
-
-
-
-
                                     }else {
                                         dobofnominee1.setText("Select Correct date");
                                     }
                                 }
                             }
-                        });*/
-
-
-
-
-
-            }
-        });
-
-
-
-
-
-
-
+                        });
+                  }
+               });
+*/
 
         downloadPDF.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 final Dialog dialog = new Dialog(getActivity());
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 dialog.setCancelable(false);
@@ -9841,11 +10098,8 @@ public class ReviewFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         dialog.dismiss();
-
                         fillEquityFormforPhysical();
-
-                    }
-                });
+                    }});
 
                 menu2.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -9853,13 +10107,9 @@ public class ReviewFragment extends Fragment {
                         dialog.dismiss();
                     }
                 });
-
-
                 dialog.show();
-
-
-            }
-        });
+             }
+            });
 
 
         physicalUpload.setOnClickListener(new View.OnClickListener() {
@@ -9899,16 +10149,174 @@ public class ReviewFragment extends Fragment {
                         NewEntryFragment.step10Line.setBackgroundColor(Color.parseColor("#19e9b5"));
                         TabLayout tabhost = getActivity().findViewById(R.id.tabs);
                         tabhost.getTabAt(6).select();
-
-                    }
-                });
-
+                    }});
                 dialog.show();
                 Window window = dialog.getWindow();
                 window.setLayout(ActionBar.LayoutParams.FILL_PARENT, ActionBar.LayoutParams.WRAP_CONTENT);
+            }});
+        //eSignDigio();
+        }
+    private void deleta_data(String nomineid) {
+        Toast.makeText(getActivity(), "NomineeID=>"+nomineid, Toast.LENGTH_LONG).show();
+        String URL_Data="https://stagingekycapi.swastika.co.in/api/AdditionalDetails/DeleteNominee";
+        try {
+            AndroidNetworking.post(URL_Data)
+                    .setPriority(Priority.HIGH)
+                    .setOkHttpClient(UtilsClass.getSlrClubClient(getActivity()))
+                    .setTag("test")
+                    .addBodyParameter("NomineeId",nomineid)
+                    .addBodyParameter("EkycId",eKycId)
+                    .addBodyParameter("UpdatedBy","0")
+                    .addBodyParameter("KeyFor","Addition")
+                    .addBodyParameter("IsNominee","true")
+                    .build().getAsJSONObject(new JSONObjectRequestListener() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                System.out.println("deleteresponsedata" + response.toString());
+                                String satus = response.getString("status");
+                                if(satus.equals("success")) {
+                                    Toast.makeText(getActivity(), "delete done", Toast.LENGTH_LONG).show();
+                                    callAddtionalData();
+                                 }else{
+                                    ShowMessage.showErrorMessage(response.getString("message"), getActivity());
+                                }
+                            }catch(JSONException ex) {
+                                System.out.println("Bank_Statement123_ex"+ ">>>>" + ex.getMessage());
+                            }}
+                        @Override
+                        public void onError(ANError anError) {
+                            Toast.makeText(getActivity(), "Something went wrong with your document please check your document whether it is corrupt or not", Toast.LENGTH_LONG).show();
+                            //progress.dismiss();
+                        }});
+        }catch (Exception e) {
+            e.printStackTrace();
+        }}
+    private void deletedata(String nomineid) {
+        ProgressDialog progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage("Loading..."); // Setting Message
+        progressDialog.setTitle("Please wait while Loading"); // Setting Title
+        progressDialog.show(); //Display Progress Dialog
+        progressDialog.setCancelable(false);
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        String URL_Data="https://stagingekycapi.swastika.co.in/api/AdditionalDetails/DeleteNominee";
+
+        if(nominee_yes_or_no.equals("Yes")){
+            is_nominee="true";
+        }else{
+            is_nominee="false";
+        }
+        System.out.println("CAlldataUrl" + URL_Data);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_Data,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        System.out.println("delete_response" + response.toString());
+                        try {
+                            JSONObject jsonObject=new JSONObject(response);
+                            String status=jsonObject.getString("status");
+                            String message=jsonObject.getString("message");
+                            if(status.equals("success")){
+                                JSONObject object=jsonObject.getJSONObject("data");
+                                String IsNominee=object.getString("IsNominee");
+                                progressDialog.dismiss();
+                            }else{
+                                Toasty.normal(getActivity(), "error message", Toast.LENGTH_LONG).show();
+                            }
+                        }catch (JSONException e) {
+                            e.printStackTrace();
+                        }}
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toasty.normal(getActivity(), error.getMessage(), Toast.LENGTH_LONG).show();
+            }}
+        ){
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> params = new HashMap<>();
+                params.put("Authorization", "Bearer " +getres_access_token );
+                params.put("NomineeId",nomineid );
+                params.put("EkycId",AppInfo.ekycApplicationId);
+                //params.put("UpdatedBy","0");
+                //params.put("KeyFor","Addition" );
+                params.put("IsNominee",is_nominee);
+                return params;
+            }};
+
+        queue.add(stringRequest);
+    }
+
+    private void DocumentType() {
+        document_typeNominee_1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DocumentType_SelectedList(document_typeNominee_1);
+
             }
         });
-        //eSignDigio();
+
+        document_typeNominee_2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DocumentType_SelectedList(document_typeNominee_2);
+            }
+        });
+
+        document_typeNominee_3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DocumentType_SelectedList(document_typeNominee_3);
+            }
+        });
+
+        document_typeNomineeGurdian_1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DocumentType_SelectedList(document_typeNomineeGurdian_1);
+            }
+        });
+
+        document_typeNomineeGurdian_2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DocumentType_SelectedList(document_typeNomineeGurdian_2);
+            }
+        });
+
+        document_typeNomineeGurdian_3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DocumentType_SelectedList(document_typeNomineeGurdian_3);
+            }
+        });
+    }
+
+    private void DocumentType_SelectedList(TextView document_typeNominee_1) {
+        LayoutInflater layoutInflater = (LayoutInflater) getActivity().getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView = layoutInflater.inflate(R.layout.dialogview, null);
+        final PopupWindow popupWindow = new PopupWindow(popupView, RecyclerView.LayoutParams.WRAP_CONTENT, RecyclerView.LayoutParams.WRAP_CONTENT);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setFocusable(true);
+        ListView listView = (ListView) popupView.findViewById(R.id.listviewspop);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1, android.R.id.text1,selectrelationlistof_document);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String value = adapter.getItem(position);
+                document_typeNominee_1.setText(value);
+                if (value == "other") {
+                    //edtothername.setVisibility(View.VISIBLE);
+                }else{
+                    //edtothername.setVisibility(View.GONE);
+                }
+                popupWindow.dismiss();
+            }}
+
+        );
+        popupWindow.showAsDropDown(document_typeNominee_1, 50, -30);
     }
 
     private void Relationshipmethod(TextView relationshipapplicant2) {
@@ -9916,47 +10324,38 @@ public class ReviewFragment extends Fragment {
         View popupView = layoutInflater.inflate(R.layout.dialogview, null);
         final PopupWindow popupWindow = new PopupWindow(popupView, RecyclerView.LayoutParams.WRAP_CONTENT, RecyclerView.LayoutParams.WRAP_CONTENT);
         popupWindow.setOutsideTouchable(true);
-        popupWindow.setFocusable(true);
+        popupWindow.setFocusable(false);
+        //searchView.clearFocus();
+        // popupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
+        //InputMethodManager imm=(InputMethodManager)getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        //imm.hideSoftInputFromWindow(relationshipapplicant2.getWindowToken(), 0);
         ListView listView = (ListView) popupView.findViewById(R.id.listviewspop);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, android.R.id.text1, selectrelationlist);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                            @Override
-                                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                                String value = adapter.getItem(position);
-
-                                                relationshipapplicant2.setText(value);
-
-                                                if (value == "other") {
-
-                                                    edtothername.setVisibility(View.VISIBLE);
-
-                                                }else{
-                                                    edtothername.setVisibility(View.GONE);
-                                                }
-                                                popupWindow.dismiss();
-                                            }
-                                        }
-
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String value = adapter.getItem(position);
+                relationshipapplicant2.setText(value);
+                if (value == "other") {
+                    edtothername.setVisibility(View.VISIBLE);
+                }else{
+                    edtothername.setVisibility(View.GONE);
+                }
+                popupWindow.dismiss();
+            }}
         );
         popupWindow.showAsDropDown(relationshipapplicant, 50, -30);
-
     }
-
     private boolean GurdianValidations() {
         String relationwithapllicant = relationshipapplicant_guardian.getText().toString();
         String city_city = txt_gurdian_city.getText().toString();
         String state_state = txt_gurdian_state.getText().toString();
+        String document_type=document_typeNomineeGurdian_1.getText().toString();
 
-        //Toast.makeText(getActivity(),"state_state"+state_state,Toast.LENGTH_SHORT).show();
-        //Toast.makeText(getActivity(),"txt_gurdian_state"+txt_gurdian_state.getText().toString(),Toast.LENGTH_SHORT).show();
-
-
-
-
-        if (edt_gurdiannameone.length() == 0) {
-            //etLastName.setError("This field is required");
+        if(edt_gurdiannameone.length() == 0) {
             Toast toast = Toast.makeText(getActivity(), "Name of Gurdian is required", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
@@ -9967,10 +10366,7 @@ public class ReviewFragment extends Fragment {
             Toast.makeText(getActivity()," Please Select Relation Ship of Gurdian ",Toast.LENGTH_SHORT).show();
             return false;
         }
-
-
         String value= edtpercentagesharing.getText().toString();
-
         if(edt_gurdianaddress_one.length()==0) {
             Toast toast = Toast.makeText(getActivity(), "Street Address of Gurdian is required", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
@@ -9986,49 +10382,50 @@ public class ReviewFragment extends Fragment {
         }
 
         if(edt_gurdianaddress_three.length()==0) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Street Address of Gurdian is required", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
             return false;
         }
 
-        if (state_state.isEmpty()) {
-            //etLastName.setError("This field is required");
-            Toast toast = Toast.makeText(getActivity(), "State is required", Toast.LENGTH_SHORT);
+        if(state_state.isEmpty()) {
+            Toast toast = Toast.makeText(getActivity(), "State is required 1", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
         if(city_city.isEmpty()) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "City is required", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
         if(editgurdianpincode.length() == 0) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Pincode is required", Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
+          }
+        if(document_type.isEmpty()) {
+            Toast toast = Toast.makeText(getActivity(), "Please Select Document type", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+            return false;
+           }
+        if(exist_gurdianimage1){
+            return true;
+        }else{
+            if(!nomineeGurdianImage_first){
+                Toast.makeText(getActivity(),"Please Upload Identification Document ",Toast.LENGTH_SHORT).show();
+                return  false;
+            }}
+         return true;
         }
-        if(!nomineeGurdianImage_first){
-            Toast.makeText(getActivity(),"Please Upload Identification Document ",Toast.LENGTH_SHORT).show();
-            return  false;
-        }
-
-        return true;
-
-    }
     private boolean CheckAllFields_of_Gurdianthird(){
         String relationwithapllicant = relationshipapplicant_guardian3.getText().toString();
         String city_city = txt_gurdian_city3.getText().toString();
         String state_state = txt_gurdian_state3.getText().toString();
+        String document_type=document_typeNomineeGurdian_3.getText().toString();
         if(edt_gurdianname3.length() == 0) {
             Toast toast = Toast.makeText(getActivity(), "Name of Third Nominee Gurdian is required", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
@@ -10061,7 +10458,7 @@ public class ReviewFragment extends Fragment {
         }
 
         if (state_state.isEmpty()) {
-            Toast toast = Toast.makeText(getActivity(), "State is required", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getActivity(), "State is required 2", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
             return false;
@@ -10078,10 +10475,20 @@ public class ReviewFragment extends Fragment {
             toast.show();
             return false;
         }
-        if(!nomineeGurdianImage_third){
-            Toast.makeText(getActivity(),"Please Upload Identification Document ",Toast.LENGTH_SHORT).show();
-            return  false;
+
+        if (document_type.isEmpty()) {
+            Toast toast = Toast.makeText(getActivity(), "Please Select Document Type", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+            return false;
         }
+        if(exist_gurdianimage3){
+            return true;
+        }else{
+            if(!nomineeGurdianImage_third){
+                Toast.makeText(getActivity(),"Please Upload Identification Document ",Toast.LENGTH_SHORT).show();
+                return  false;
+            }}
         return true;
     }
 
@@ -10089,6 +10496,8 @@ public class ReviewFragment extends Fragment {
         String relationwithapllicant = relationshipapplicant_guardian2.getText().toString();
         String city_city = txt_gurdian_city2.getText().toString();
         String state_state = txt_gurdian_state2.getText().toString();
+        String document_type=document_typeNomineeGurdian_2.getText().toString();
+
         if(edt_gurdianname2.length() == 0) {
             //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Name of Second Nominee Gurdian is required", Toast.LENGTH_SHORT);
@@ -10120,7 +10529,7 @@ public class ReviewFragment extends Fragment {
             return false;
         }
         if (state_state.isEmpty()) {
-            Toast toast = Toast.makeText(getActivity(), "State is required", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getActivity(), "State is required 3", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
             return false;
@@ -10137,18 +10546,30 @@ public class ReviewFragment extends Fragment {
             toast.show();
             return false;
         }
-        if(!nomineeGurdianImage_second){
-            Toast.makeText(getActivity(),"Please Upload Identification Document ",Toast.LENGTH_SHORT).show();
-            return  false;
+
+        if (document_type.isEmpty()) {
+            Toast toast = Toast.makeText(getActivity(), "Please Select document", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+            return false;
         }
+
+        if(exist_gurdianimage2){
+            return true;
+        }else{
+            if(!nomineeGurdianImage_second){
+                Toast.makeText(getActivity(),"Please Upload Identification Document ",Toast.LENGTH_SHORT).show();
+                return  false;
+            }}
         return true;
-    }
+     }
 
     private boolean CheckAllFields_of_nomineethird(){
 
         String relationwithapllicant = relationshipapplicant3.getText().toString();
         String city_city =addcity3.getText().toString();
         String state_state =addstate3.getText().toString();
+        String document_type=document_typeNominee_3.getText().toString();
 
         if(edt_nameofnominee3.length() == 0) {
             //edt_firstnominee.setError("This field is required");
@@ -10181,14 +10602,12 @@ public class ReviewFragment extends Fragment {
         }
 
         if(relationwithapllicant.isEmpty()) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Relaton ship is required of Third Nominee", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
             return false;
         }
         if (relationwithapllicant.equals("other") && edtothername.length() == 0) {
-            //etPassword.setError("Password must be minimum 8 characters");
             Toast toast = Toast.makeText(getActivity(), "Relaton ship is required of Third Nominee", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
@@ -10196,93 +10615,76 @@ public class ReviewFragment extends Fragment {
         }
 
         if (addone3.length() == 0) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Street Address is required for Third Nominee", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
 
         if (addtwo3.length() == 0) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Street Address is required for Second Nominee", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
         if (addthree3.length() == 0) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Street Address is required for Third Nominee", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
         if (state_state.isEmpty()) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "State is required for Third Nominee", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
         if(city_city.isEmpty()) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "City is required for Third Nominee", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
         if(addpincode3.length() == 0) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Pincode is required for Second Nominee", Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
-        }
-        //nomineeImage_first=false,nomineeImage_second=false,nomineeImage_third=false;
-        if(!nomineeImage_third){
-            Toast.makeText(getActivity(),"Please Upload Identification Document for Third Nominee ",Toast.LENGTH_SHORT).show();
-            return  false;
-        }
-                /*if(!nomineeImage_first){
-                    Toast.makeText(getActivity(),"Please Upload Identification Document ",Toast.LENGTH_SHORT).show();
-                    return  false;
-                }*/
-
-                /*if(value){
-                    Toast.makeText(getActivity(),"Please Upload Identification Document ",Toast.LENGTH_SHORT).show();
-                    return  false;
-                }*/
+           }
+        if(document_type.isEmpty()) {
+            Toast toast = Toast.makeText(getActivity(), "Select Document Type for Third Nominee", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+            return false;
+           }
+        if(exist_nomineimage3){
+            return true;
+        }else{
+            if(!nomineeImage_third){
+                Toast.makeText(getActivity(),"Please Upload Identification Document for Third Nominee ",Toast.LENGTH_SHORT).show();
+                return  false;
+            }}
         return true;
-
-    }
+        }
 
     private boolean CheckAllFields_of_nomineesecond() {
         String relationwithapllicant = relationshipapplicant2.getText().toString();
         String city_city =addcity2.getText().toString();
         String state_state =addstate2.getText().toString();
+        String document_type=document_typeNominee_2.getText().toString();
 
         if(edt_name_of_nominee2.length() == 0) {
-            //edt_firstnominee.setError("This field is required");
             Toast.makeText(getActivity()," Name of Second Nominee  is required ",Toast.LENGTH_SHORT).show();
             return false;
         }
 
         if (edtpercentagesharing2.length() == 0) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Percentage is required for Second Nominee ", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
             return false;
         }
         String value= edtpercentagesharing2.getText().toString();
-        //float finalValue=Float.valueOf(value);
-
         if(value.length()==0) {
             Toast toast = Toast.makeText(getActivity(), "Percentage is required for Second Nominee", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
@@ -10290,7 +10692,6 @@ public class ReviewFragment extends Fragment {
             return false;
         }
         if(dobofnominee2.length() == 0) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Please Select D.O.B of Second Nominee", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
@@ -10298,116 +10699,89 @@ public class ReviewFragment extends Fragment {
         }
 
         if(relationwithapllicant.isEmpty()) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Relaton ship is required of Second Nominee", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
             return false;
         }
         if (relationwithapllicant.equals("other") && edtothername.length() == 0) {
-            //etPassword.setError("Password must be minimum 8 characters");
             Toast toast = Toast.makeText(getActivity(), "Relaton ship is required of Second Nominee", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
             return false;
         }
-
-        if (addres_one_of_nominee2.length() == 0) {
-            //etLastName.setError("This field is required");
+        if(addres_one_of_nominee2.length() == 0) {
             Toast toast = Toast.makeText(getActivity(), "Street Address is required for Second Nominee", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
-
-        if (addres_two_of_nominee2.length() == 0) {
-            //etLastName.setError("This field is required");
+        if(addres_two_of_nominee2.length() == 0) {
             Toast toast = Toast.makeText(getActivity(), "Street Address is required for Second Nominee", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
         if (addres_three_of_nominee2.length() == 0) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Street Address is required for Second Nominee", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
         if (state_state.isEmpty()) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "State is required for Second Nominee", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
         if(city_city.isEmpty()) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "City is required for Second Nominee", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
         if(addpincode2.length() == 0) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Pincode is required for Second Nominee", Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
-        //nomineeImage_first=false,nomineeImage_second=false,nomineeImage_third=false;
-        if(!nomineeImage_second){
-            Toast.makeText(getActivity(),"Please Upload Identification Document for Second Nominee ",Toast.LENGTH_SHORT).show();
-            return  false;
+        if(document_type.isEmpty()) {
+            Toast toast = Toast.makeText(getActivity(), "Select Document Type  for Second Nominee", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+            return false;
+           }
+        if(exist_nomineimage2){
+            return true;
+         }else{
+            if(!nomineeImage_second){
+                Toast.makeText(getActivity(),"Please Upload Identification Document for Second Nominee ",Toast.LENGTH_SHORT).show();
+                return  false;
+            }
+
         }
-                /*if(!nomineeImage_first){
-                    Toast.makeText(getActivity(),"Please Upload Identification Document ",Toast.LENGTH_SHORT).show();
-                    return  false;
-                }*/
-
-                /*if(value){
-                    Toast.makeText(getActivity(),"Please Upload Identification Document ",Toast.LENGTH_SHORT).show();
-                    return  false;
-                }*/
         return true;
-    }
-
-
-
-
-
-
-
+     }
 
 
     private boolean CheckAllFields() {
         String relationwithapllicant = relationshipapplicant.getText().toString();
         String city_city = addcity.getText().toString();
         String state_state = addstate.getText().toString();
+        String document_type=document_typeNominee_1.getText().toString();
 
         if(edt_firstnominee.length() == 0) {
-            //edt_firstnominee.setError("This field is required");
             Toast.makeText(getActivity()," Name of Nominee is required ",Toast.LENGTH_SHORT).show();
             return false;
         }
-
-        if (edtpercentagesharing.length() == 0) {
-            //etLastName.setError("This field is required");
+        if(edtpercentagesharing.length() == 0) {
             Toast toast = Toast.makeText(getActivity(), "Percentage is required", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
             return false;
         }
-
         String value= edtpercentagesharing.getText().toString();
-        //float finalValue=Float.valueOf(value);
-
         if(value.length()==0) {
             Toast toast = Toast.makeText(getActivity(), "Percentage is required", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
@@ -10415,94 +10789,77 @@ public class ReviewFragment extends Fragment {
             return false;
         }
         if(dobofnominee1.length() == 0) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Please Select D.O.B", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
             return false;
         }
-
         if(relationwithapllicant.isEmpty()) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Relaton ship is required", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
             return false;
         }
         if (relationwithapllicant.equals("other") && edtothername.length() == 0) {
-            //etPassword.setError("Password must be minimum 8 characters");
             Toast toast = Toast.makeText(getActivity(), "Relaton ship is required", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
             return false;
         }
-
-        if (addone.length() == 0) {
-            //etLastName.setError("This field is required");
+        if(addone.length() == 0) {
             Toast toast = Toast.makeText(getActivity(), "Street Address is required", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
-
-        if (addtwo.length() == 0) {
-            //etLastName.setError("This field is required");
+        if(addtwo.length() == 0) {
             Toast toast = Toast.makeText(getActivity(), "Street Address is required", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
         if (addthree.length() == 0) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Street Address is required", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
         if (state_state.isEmpty()) {
-            //etLastName.setError("This field is required");
-            Toast toast = Toast.makeText(getActivity(), "State is required", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getActivity(), "State is required 4", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
         if(city_city.isEmpty()) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "City is required", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
         if(addpincode.length() == 0) {
-            //etLastName.setError("This field is required");
             Toast toast = Toast.makeText(getActivity(), "Pincode is required", Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER, 0, 0);
-            //toast.getView().setBackgroundColor(Color.parseColor("#808080"));
             toast.show();
             return false;
         }
-        //nomineeImage_first=false,nomineeImage_second=false,nomineeImage_third=false;
-        if(!nomineeImage_first){
-            Toast.makeText(getActivity(),"Please Upload Identification Document ",Toast.LENGTH_SHORT).show();
-            return  false;
+        if(document_type.isEmpty()) {
+            Toast toast = Toast.makeText(getActivity(), "Please Select Document Type", Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+            return false;
         }
+       if(exist_nomineimage1){
+         return true;
+       }else {
+           if(!nomineeImage_first){
+               Toast.makeText(getActivity(),"Please Upload Identification Document ",Toast.LENGTH_SHORT).show();
+               return  false;
+           }}
+       return true;
+      }
 
-                /*if(!nomineeImage_first){
-                    Toast.makeText(getActivity(),"Please Upload Identification Document ",Toast.LENGTH_SHORT).show();
-                    return  false;
-                }*/
 
-                /*if(value){
-                    Toast.makeText(getActivity(),"Please Upload Identification Document ",Toast.LENGTH_SHORT).show();
-                    return  false;
-                }*/
-        return true;
-    }
+
 
     private void getCityByStateName(String selectedFromList, FragmentActivity activity) {
         JSONObject jsonObject = new JSONObject();
@@ -10568,7 +10925,7 @@ public class ReviewFragment extends Fragment {
             int id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
             cursor.close();
             return Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "" + id);
-        } else {
+        }else{
             if (imageFile.exists()) {
                 ContentValues values = new ContentValues();
                 values.put(MediaStore.Images.Media.DATA, filePath);
@@ -10576,14 +10933,10 @@ public class ReviewFragment extends Fragment {
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
             } else {
                 return null;
-            }
-        }
-    }
-
-
+            }}}
     private  void test(ProgressDialog progress){
         // Uri picUri = getImageContentUri(getActivity(), Nominee_First);
-        Uri picUri =   Uri.fromFile(Nominee_First);
+        Uri picUri = Uri.fromFile(Nominee_First);
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(),picUri);
             uploadBitmap(bitmap,progress);
@@ -10701,7 +11054,6 @@ public class ReviewFragment extends Fragment {
             Guardian_Third=no_imagefile;
         }
 
-
         String URL_BANK_DOC = WebServices.getBaseURL + WebServices.getUploadNomineeIdentifivationURL;
         System.out.println("ekycApplicationId" +AppInfo.ekycApplicationId);
         System.out.println("Nominee-1" + Nominee_First);
@@ -10718,12 +11070,14 @@ public class ReviewFragment extends Fragment {
                     .setTag("test")
                     //.addMultipartParameter("DocumentType", "Income")
                     .addMultipartParameter("ekycApplicationId",AppInfo.ekycApplicationId)
+                    .addMultipartParameter("KeyFor","Addition")
+                    .addMultipartParameter("RequestId","0")
                     .addMultipartFile("Nominee-1", Nominee_First)
-                    .addMultipartFile("Guardian-1",Nominee_Second)
+                    .addMultipartFile("Guardian-1",Guardian_First)
                     .addMultipartFile("Nominee-2", Nominee_Second)
-                    .addMultipartFile("Guardian-2",Nominee_Second)
-                    .addMultipartFile("Nominee-3", Nominee_Second)
-                    .addMultipartFile("Guardian-3",Nominee_Second)
+                    .addMultipartFile("Guardian-2",Guardian_Second)
+                    .addMultipartFile("Nominee-3", Nominee_Third)
+                    .addMultipartFile("Guardian-3",Guardian_Third)
                     .build().getAsJSONObject(new JSONObjectRequestListener() {
                         @Override
                         public void onResponse(JSONObject response) {
@@ -10742,17 +11096,13 @@ public class ReviewFragment extends Fragment {
 
                         @Override
                         public void onError(ANError anError) {
-
                             Toast.makeText(getActivity(), "Something went wrong with your document please check your document whether it is corrupt or not", Toast.LENGTH_LONG).show();
                             progress.dismiss();
                         }});
         }catch (Exception e) {
             e.printStackTrace();
-        }}
-
-
-
-
+        }
+    }
     private HostnameVerifier getHostnameVerifier() {
         return new HostnameVerifier() {
             @Override
@@ -11329,21 +11679,8 @@ public class ReviewFragment extends Fragment {
 
                 brokerage_data = itemView.findViewById(R.id.brokerage_data);
                 brokerage_ada = itemView.findViewById(R.id.brokerage_ada);
-            }
-        }
-    }
-
-
-
-
-
-
-
-
-
-    //    RecyclerCustomAdapter_CommoditiyDerivativeFuture stringArrayAdapter_commoditiyDerivativeFuture;
-
-
+            }}}
+    //RecyclerCustomAdapter_CommoditiyDerivativeFuture stringArrayAdapter_commoditiyDerivativeFuture;
     public class RecyclerCustomAdapter_CommoditiyDerivativeFuture extends RecyclerView.Adapter<RecyclerCustomAdapter_CommoditiyDerivativeFuture.MyViewHolderForGrid> {
         private Context context;
         ArrayList<BrokerageModel> dataList;
@@ -11364,18 +11701,15 @@ public class ReviewFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull MyViewHolderForGrid holder, @SuppressLint("RecyclerView") int position) {
             try {
-
-                if (dataList.get(position).getONESIDEMIN() != null) {
+                if(dataList.get(position).getONESIDEMIN() != null) {
                     System.out.println("GetBrokerageDetail : stock_intraday : " + "brokerage_data set  : ");
                     holder.brokerage_data.setText(dataList.get(position).getONESIDEPER());
                 }
-
                 holder.brokerage_data.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         System.out.println("GetBrokerageDetail : stock_intraday : " + "brokerage_data on click : ");
                         String selectedFromList = String.valueOf(dataList.get(position));
-
                         Cash_intraday_ONESIDEPER = dataList.get(position).getONESIDEPER();
                         currency_derivatives_options.setText(Cash_intraday_ONESIDEPER);
                         commodity_derivatives_futures_MODULE_NO = dataList.get(position).getMODULE_NO();
@@ -11383,16 +11717,10 @@ public class ReviewFragment extends Fragment {
                         commodity_derivatives_futures.setText(Cash_intraday_ONESIDEPER);
                         System.out.println("GetBrokerageDetailbrokerage_data" + commodity_derivatives_futures_MODULE_NO + "==DD== " + Cash_intraday_ONESIDEPER);
                         brokerage_dialog.dismiss();
-
-
-
-
                     }
                 });
             } catch (Exception e) {
-
-            }
-        }
+            }}
 
         //method for filtering our recyclerview items.
         public void filterList(ArrayList<BrokerageModel> filterllist) {
@@ -11415,10 +11743,8 @@ public class ReviewFragment extends Fragment {
         }
 
         public class MyViewHolderForGrid extends RecyclerView.ViewHolder {
-
             TextView brokerage_data;
             LinearLayout brokerage_ada;
-
             public MyViewHolderForGrid(View itemView) {
                 super(itemView);
 
@@ -11631,12 +11957,10 @@ public class ReviewFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull MyViewHolderForGrid holder, @SuppressLint("RecyclerView") int position) {
             try {
-
-                if (dataList.get(position).getONESIDEMIN() != null) {
+                if(dataList.get(position).getONESIDEMIN() != null) {
                     System.out.println("GetBrokerageDetail : stock_intraday : " + "brokerage_data set  : ");
                     holder.brokerage_data.setText(dataList.get(position).getONESIDEMIN());
                 }
-
                 holder.brokerage_data.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -11715,13 +12039,11 @@ public class ReviewFragment extends Fragment {
         TextView txtgallary = dialogView.findViewById(R.id.txtgallary);
         //txtgallary.setText("Upload " + titleDoc);
         txtgallary.setText("Upload picture from gallery");
-
         txtDocument.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 alertDialog.dismiss();
                 DocumentType = "PDF";
-
                 checkPermissionsAndOpenFilePicker();
             }
         });
@@ -11731,9 +12053,7 @@ public class ReviewFragment extends Fragment {
             public void onClick(View v) {
                 alertDialog.dismiss();
                 openCameraIntent();
-
-            }
-        });
+            }});
 
 
         txtgallary.setOnClickListener(new View.OnClickListener() {
@@ -11773,12 +12093,9 @@ public class ReviewFragment extends Fragment {
                 .withTitle("Tap to Open")
                 .start();
     }
-
-
     private void showError() {
         Toast.makeText(getActivity(), "Please enable 'Files and Media' permission from the Settings under eKYC App Swastika to continue.", Toast.LENGTH_SHORT).show();
     }
-
 
     private void pickupImage_of_Nominee(String titleDoc){
         //String titleDoc = "Brokerage";
@@ -11915,7 +12232,6 @@ public class ReviewFragment extends Fragment {
         try {
             AdditionalObj.put("AcOpenLocation", "NSDL");
             AdditionalObj.put("AdditionalDetailsId","0");
-            AdditionalObj.put("CreatedBy", 269);
             AdditionalObj.put("FATCA_CountryOfCitizenship", "Other");
             AdditionalObj.put("FATCA_IsUsPerson","Yes");
             AdditionalObj.put("FATCA_TaxResidence", "Other");
@@ -11937,36 +12253,74 @@ public class ReviewFragment extends Fragment {
             AdditionalObj.put("SI_ReceiveDeliveryInstructionSlip", "No");
             AdditionalObj.put("SI_ShareEmailIdWithRegistrar", "Yes");
             AdditionalObj.put("SI_TRUSTSMSAlertFacility", "Yes");
-            AdditionalObj.put("ekycApplicationId", 81313);
-            AdditionalObj.put("Medium", "Mobile");
-            AdditionalObj.put("IsNominee", nominee_yes_or_no);
+            AdditionalObj.put("ekycApplicationId",AppInfo.ekycApplicationId);
+            //AdditionalObj.put("Medium", "Mobile");
+            AdditionalObj.put("IsNominee",nominee_yes_or_no);
             AdditionalObj.put("Medium","Mobile");
             AdditionalObj.put("CreatedBy", AppInfo.RM_ID);
+            AdditionalObj.put("CreadedDate", formattedDate);
+
 
             if(!nominee_yes_or_no.equals("No")) {
                 JSONObject Nomine1 = new JSONObject();
                 try {
                     Nomine1.put("ekycApplicationId", AppInfo.ekycApplicationId);
-                    Nomine1.put("NomineeId", "1");
-                    Nomine1.put("NomineeName", edt_firstnominee.getText().toString());
-                    Nomine1.put("AddressSameAsAccountHolder", "A");
-                    Nomine1.put("NomineeAddress1", addone.getText().toString());
-                    Nomine1.put("NomineeAddress2", addtwo.getText().toString());
-                    Nomine1.put("NomineeAddress3", addthree.getText().toString());
-                    Nomine1.put("NomineeCity", addcity.getText().toString());
-                    Nomine1.put("NomineePinCode", addpincode.getText().toString());
+
+                    if(nomineeId1.equals("")){
+                        Nomine1.put("NomineeId", "1");
+                    }else{
+                        Nomine1.put("NomineeId", nomineeId1);
+                    }
+
+                    Nomine1.put("NomineeName",edt_firstnominee.getText().toString());
+                    Nomine1.put("NomineeDocumentType",document_typeNominee_1.getText().toString());
+                    if(first_Nominee_Address){
+                        Nomine1.put("AddressSameAsAccountHolder", "Yes");
+                        Nomine1.put("NomineeAddress1","");
+                        Nomine1.put("NomineeAddress2","");
+                        Nomine1.put("NomineeAddress3","");
+                        Nomine1.put("NomineeCity", "");
+                        Nomine1.put("NomineeState","");
+                        Nomine1.put("NomineePinCode","");
+                    }else{
+                        Nomine1.put("AddressSameAsAccountHolder", "No");
+                        Nomine1.put("NomineeAddress1", addone.getText().toString());
+                        Nomine1.put("NomineeAddress2", addtwo.getText().toString());
+                        Nomine1.put("NomineeAddress3", addthree.getText().toString());
+                        Nomine1.put("NomineeCity", addcity.getText().toString());
+                        Nomine1.put("NomineeState",addstate.getText().toString());
+                        Nomine1.put("NomineePinCode", addpincode.getText().toString());
+                    }
+
                     Nomine1.put("PanCard", "");
                     Nomine1.put("NomineePhone", "");
                     Nomine1.put("RelationshipWithNominee",relationshipapplicant.getText().toString());
                     Nomine1.put("DOB",DOB1);
-                    Nomine1.put("IsMinor", isminornominee);
-                    Nomine1.put("GuardiansName", name_of_guardian_edt.getText().toString());
-                    Nomine1.put("GuardiansAddress1", edt_gurdianaddress_one.getText().toString());
-                    Nomine1.put("GuardiansAddress2", edt_gurdianaddress_two.getText().toString());
-                    Nomine1.put("GuardiansAddress3", edt_gurdianaddress_three.getText().toString());
+                    Nomine1.put("IsMinor",isminornominee);
+                    Nomine1.put("GuardiansName",edt_gurdiannameone.getText().toString());
+                    Nomine1.put("GuardianDocumentType",document_typeNomineeGurdian_1.getText().toString());
+
+                    if(gurdiansaddressselcted){
+                        Nomine1.put("GuardianAddressSameAsAccountHolder", "Yes");
+                        Nomine1.put("GuardiansAddress1","");
+                        Nomine1.put("GuardiansAddress2","");
+                        Nomine1.put("GuardiansAddress3","");
+                        Nomine1.put("GuardianCity","");
+                        Nomine1.put("GuardianState","");
+                        Nomine1.put("GuardianPinCode","");
+                    }else{
+                        Nomine1.put("GuardianAddressSameAsAccountHolder", "No");
+                        Nomine1.put("GuardiansAddress1",edt_gurdianaddress_one.getText().toString());
+                        Nomine1.put("GuardiansAddress2",edt_gurdianaddress_two.getText().toString());
+                        Nomine1.put("GuardiansAddress3",edt_gurdianaddress_three.getText().toString());
+                        Nomine1.put("GuardianCity",txt_gurdian_city.getText().toString());
+                        Nomine1.put("GuardianState",txt_gurdian_state.getText().toString());
+                        Nomine1.put("GuardianPinCode",editgurdianpincode.getText().toString());
+
+                    }
+
                     Nomine1.put("GuardiansPhone", "");
                     Nomine1.put("RelationshipWithGuardian", relationshipapplicant_guardian.getText().toString());
-                    Nomine1.put("GuardianCity", txt_gurdian_city.getText().toString());
                     Nomine1.put("GuardiansDate", "2020-08-03");
                     Nomine1.put("GuardiansPlace", "");
                     Nomine1.put("SubmittedPlace", "");
@@ -11974,15 +12328,40 @@ public class ReviewFragment extends Fragment {
                     Nomine1.put("SharePercentage", edtpercentagesharing.getText().toString());
 
                 }catch (JSONException e) {
-                    // TODO Auto-generated catch block
+                    //TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 JSONObject Nomine2 = new JSONObject();
                 try {
                     Nomine2.put("ekycApplicationId", AppInfo.ekycApplicationId);
-                    Nomine2.put("NomineeId", "2");
+
+                    if(nomineeId2.equals("")){
+                        Nomine2.put("NomineeId", "2");
+                    }else{
+                        Nomine2.put("NomineeId",nomineeId2);
+                    }
+
                     Nomine2.put("NomineeName", edt_name_of_nominee2.getText().toString());
-                    Nomine2.put("AddressSameAsAccountHolder", "A");
+                    Nomine2.put("NomineeDocumentType", document_typeNominee_2.getText().toString());
+                    if(secondn_Nominee_Address){
+                        Nomine2.put("AddressSameAsAccountHolder", "Yes");
+                        Nomine2.put("NomineeAddress1","");
+                        Nomine2.put("NomineeAddress2","");
+                        Nomine2.put("NomineeAddress3","");
+                        Nomine2.put("NomineeCity","");
+                        Nomine2.put("NomineePinCode","");
+                        Nomine2.put("NomineeState","");
+
+                    }else{
+                        Nomine2.put("AddressSameAsAccountHolder", "No");
+                        Nomine2.put("NomineeAddress1",addres_one_of_nominee2.getText().toString());
+                        Nomine2.put("NomineeAddress2", addres_two_of_nominee2.getText().toString());
+                        Nomine2.put("NomineeAddress3", addres_three_of_nominee2.getText().toString());
+                        Nomine2.put("NomineeCity", addcity2.getText().toString());
+                        Nomine2.put("NomineePinCode", addpincode2.getText().toString());
+                        Nomine2.put("NomineeState", addstate2.getText().toString());
+                    }
+
                     Nomine2.put("NomineeAddress1",addres_one_of_nominee2.getText().toString());
                     Nomine2.put("NomineeAddress2", addres_two_of_nominee2.getText().toString());
                     Nomine2.put("NomineeAddress3", addres_three_of_nominee2.getText().toString());
@@ -11993,57 +12372,105 @@ public class ReviewFragment extends Fragment {
                     Nomine2.put("RelationshipWithNominee", relationshipapplicant2.getText().toString());
                     Nomine2.put("DOB", DOB2);
                     Nomine2.put("IsMinor", is_Second_minornominee);
-                    Nomine2.put("GuardiansName", edt_gurdianname2.getText().toString());
-                    Nomine2.put("GuardiansAddress1", edt_gurdianaddress2.getText().toString());
-                    Nomine2.put("GuardiansAddress2", edt_gurdianaddress_two2.getText().toString());
-                    Nomine2.put("GuardiansAddress3", edt_gurdianaddress_three2.getText().toString());
+                    Nomine2.put("GuardiansName",edt_gurdianname2.getText().toString());
+                    Nomine2.put("GuardianDocumentType", document_typeNomineeGurdian_2.getText().toString());
+                    if(gurdiansaddressselcted_ofsecondnominee){
+                        Nomine2.put("GuardianAddressSameAsAccountHolder", "Yes");
+                        Nomine2.put("GuardiansAddress1","");
+                        Nomine2.put("GuardiansAddress2","");
+                        Nomine2.put("GuardiansAddress3","");
+                        Nomine2.put("GuardianCity","");
+                        Nomine2.put("GuardianState","");
+                        Nomine2.put("GuardianPinCode","");
+
+                    }else{
+                        Nomine2.put("GuardianAddressSameAsAccountHolder", "No");
+                        Nomine2.put("GuardiansAddress1",edt_gurdianaddress2.getText().toString());
+                        Nomine2.put("GuardiansAddress2",edt_gurdianaddress_two2.getText().toString());
+                        Nomine2.put("GuardiansAddress3",edt_gurdianaddress_three2.getText().toString());
+                        Nomine2.put("GuardianCity", txt_gurdian_city2.getText().toString());
+                        Nomine2.put("GuardianState",txt_gurdian_state2.getText().toString());
+                        Nomine2.put("GuardianPinCode",edittextpincode2.getText().toString());
+                    }
                     Nomine2.put("GuardiansPhone", "");
-                    Nomine2.put("RelationshipWithGuardian", relationshipapplicant_guardian2.getText().toString());
-                    Nomine2.put("GuardianCity", txt_gurdian_city2.getText().toString());
+                    Nomine2.put("RelationshipWithGuardian",relationshipapplicant_guardian2.getText().toString());
                     Nomine2.put("GuardiansDate", "2020-08-03");
                     Nomine2.put("GuardiansPlace", "");
                     Nomine2.put("SubmittedPlace", "");
                     Nomine2.put("Sequence", "2");
                     Nomine2.put("SharePercentage",edtpercentagesharing2.getText().toString());
-
-                }catch (JSONException e) {
-                    // TODO Auto-generated catch block
+                }catch(JSONException e) {
                     e.printStackTrace();
                 }
-                JSONObject Nomine3 = new JSONObject();
-                try {
 
+                JSONObject Nomine3 = new JSONObject();
+                try{
                     Nomine3.put("ekycApplicationId", AppInfo.ekycApplicationId);
-                    Nomine3.put("NomineeId", "3");
+
+                    if(nomineeId3.equals("")){
+                        Nomine3.put("NomineeId", "3");
+                    }else{
+                        Nomine3.put("NomineeId", nomineeId3);
+                    }
                     Nomine3.put("NomineeName", edt_nameofnominee3.getText().toString());
-                    Nomine3.put("AddressSameAsAccountHolder", "A");
-                    Nomine3.put("NomineeAddress1",addone3.getText().toString());
-                    Nomine3.put("NomineeAddress2",addtwo3.getText().toString());
-                    Nomine3.put("NomineeAddress3",addthree3.getText().toString());
-                    Nomine3.put("NomineeCity", addcity3.getText().toString());
-                    Nomine3.put("NomineePinCode", addpincode3.getText().toString());
+                    Nomine3.put("NomineeDocumentType",document_typeNominee_3.getText().toString());
+                    if(third_Nominee_Address){
+                        Nomine3.put("AddressSameAsAccountHolder", "Yes");
+                        Nomine3.put("NomineeAddress1","");
+                        Nomine3.put("NomineeAddress2","");
+                        Nomine3.put("NomineeAddress3","");
+                        Nomine3.put("NomineeCity","");
+                        Nomine3.put("NomineeState","");
+                        Nomine3.put("NomineePinCode","");
+
+                    }else{
+                        Nomine3.put("AddressSameAsAccountHolder", "No");
+                        Nomine3.put("NomineeAddress1",addone3.getText().toString());
+                        Nomine3.put("NomineeAddress2",addtwo3.getText().toString());
+                        Nomine3.put("NomineeAddress3",addthree3.getText().toString());
+                        Nomine3.put("NomineeCity", addcity3.getText().toString());
+                        Nomine3.put("NomineeState",addstate3.getText().toString());
+                        Nomine3.put("NomineePinCode", addpincode3.getText().toString());
+                    }
+
                     Nomine3.put("PanCard", "");
                     Nomine3.put("NomineePhone", "");
                     Nomine3.put("RelationshipWithNominee", relationshipapplicant3.getText().toString());
                     Nomine3.put("DOB", DOB3);
                     Nomine3.put("IsMinor", is_Third_minornominee);
                     Nomine3.put("GuardiansName", edt_gurdianname3.getText().toString());
-                    Nomine3.put("GuardiansAddress1", edt_gurdianaddress_one3.getText().toString());
-                    Nomine3.put("GuardiansAddress2", edt_gurdianaddress_two3.getText().toString());
-                    Nomine3.put("GuardiansAddress3", edt_gurdianaddress_three3.getText().toString());
+                    Nomine3.put("GuardianDocumentType", document_typeNomineeGurdian_3.getText().toString());
+
+                    if(gurdiansaddressselcted_ofthirdnominee){
+                        Nomine3.put("GuardianAddressSameAsAccountHolder", "Yes");
+                        Nomine3.put("GuardiansAddress1","");
+                        Nomine3.put("GuardiansAddress2","");
+                        Nomine3.put("GuardiansAddress3","");
+                        Nomine3.put("GuardianCity","");
+                        Nomine3.put("GuardianState","");
+                        Nomine3.put("GuardianPinCode","");
+
+                    }else{
+                        Nomine3.put("GuardianAddressSameAsAccountHolder", "No");
+                        Nomine3.put("GuardiansAddress1", edt_gurdianaddress_one3.getText().toString());
+                        Nomine3.put("GuardiansAddress2", edt_gurdianaddress_two3.getText().toString());
+                        Nomine3.put("GuardiansAddress3", edt_gurdianaddress_three3.getText().toString());
+                        Nomine3.put("GuardianCity", txt_gurdian_city3.getText().toString());
+                        Nomine3.put("GuardianState",txt_gurdian_state3.getText().toString());
+                        Nomine3.put("GuardianPinCode",edittextpincode3.getText().toString());
+                    }
+
                     Nomine3.put("GuardiansPhone", "");
                     Nomine3.put("RelationshipWithGuardian", relationshipapplicant_guardian3.getText().toString());
-                    Nomine3.put("GuardianCity", txt_gurdian_city3.getText().toString());
                     Nomine3.put("GuardiansDate", "2020-08-03");
                     Nomine3.put("GuardiansPlace", "");
                     Nomine3.put("SubmittedPlace", "");
                     Nomine3.put("Sequence", "1");
                     Nomine3.put("SharePercentage", edtpercentagesharing3.getText().toString());
-
-                }catch (JSONException e) {
-                    //TODO Auto-generated catch block
+                }catch(JSONException e) {
                     e.printStackTrace();
                 }
+
                 JSONArray jsonArray = new JSONArray();
                 if(nominetype.equals("Nominee1")){
                     jsonArray.put(Nomine1);
@@ -12058,27 +12485,22 @@ public class ReviewFragment extends Fragment {
                     jsonArray.put(Nomine3);
                     AdditionalObj.put("NomineeDetails", jsonArray);
                 }
-
             }else{
-
             }
             System.out.println("AdditionalObj" + AdditionalObj.toString());
-        }catch (JSONException e) {
+        }catch(JSONException e) {
             e.printStackTrace();
         }
         if(bottomSheetBehaviorAdditionDoc.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             bottomSheetBehaviorAdditionDoc.setState(BottomSheetBehavior.STATE_HIDDEN);
         }
-
         if(bottomSheetBehaviorAddNominee.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             bottomSheetBehaviorAddNominee.setState(BottomSheetBehavior.STATE_HIDDEN);
         }
-        if(bottomSheetBehaviorAddNominees.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+        if(bottomSheetBehaviorAddNominees.getState() == BottomSheetBehavior.STATE_EXPANDED){
             bottomSheetBehaviorAddNominees.setState(BottomSheetBehavior.STATE_HIDDEN);
         }
     }
-
-
     private void saveNomineedata()
     {
         ProgressDialog progress = new ProgressDialog(getActivity());
@@ -12105,38 +12527,34 @@ public class ReviewFragment extends Fragment {
                                 String message=response.getString("message");
                                 if(status.equals("success")){
                                     Toast.makeText(getActivity(), ""+message, Toast.LENGTH_SHORT).show();
-
                                     if(!nominee_yes_or_no.equals("No")){
-                                        Send_Nominee_Images(progress);
-                                        //test(progress);
-
-                                    }else {
+                                        if(nomineeImage_first||nomineeImage_second||nomineeImage_third||nomineeGurdianImage_first
+                                                ||nomineeGurdianImage_second||nomineeImage_third){
+                                            Send_Nominee_Images(progress);
+                                        }else {
+                                            progress.dismiss();
+                                        }
+                                    }else{
                                         progress.dismiss();
                                     }
-                                    //uploadNomine_Images(progress);
-
                                 }else{
                                     Toast.makeText(getActivity(), ""+message, Toast.LENGTH_SHORT).show();
                                     progress.dismiss();
                                 }
-                            }catch (JSONException e) {
+                            }catch(JSONException e) {
                                 e.printStackTrace();
-                            }
-                        }
-
+                            }  }
                         @Override
                         public void onError(ANError error) {
                             if (error.getErrorCode() != 0) {
                                 System.out.println("uploadAddtionalData123" + error.getErrorCode());
                                 System.out.println("uploadAddtionalData123" + error.getErrorBody());
                                 System.out.println("uploadAddtionalData123" + error.getErrorDetail());
-                            }else {
+                            }else{
                                 System.out.println("uploadAddtionalData123" +  error.getErrorDetail());
                             }
-
-                        }
-                    });
-        } catch (Exception e) {
+                        }});
+        }catch(Exception e){
             e.printStackTrace();
         }
     }
@@ -12146,35 +12564,30 @@ public class ReviewFragment extends Fragment {
         try {
             AndroidNetworking.post(url)
                     .setOkHttpClient(UtilsClass.getSlrClubClient(getActivity()))
-                    .addJSONObjectBody(AdditionalObj) // posting json
+                    .addJSONObjectBody(AdditionalObj) //posting json
                     .setTag("test")
                     .setPriority(Priority.MEDIUM)
                     .build()
                     .getAsJSONObject(new JSONObjectRequestListener() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            // do anything with response
                             System.out.println("uploadAddtionalData123" + response.toString());
-                            //Callsubmitdata();
                         }
                         @Override
                         public void onError(ANError error) {
-                            // handle error
+                            //handle error
                         }
                     });
-        }catch(Exception e) {
+        }catch(Exception e){
             e.printStackTrace();
         }
     }
-
-
     private void Callsubmitdata() {
         if(bottomSheetBehaviorBrockrage.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             if (isLessThanRequired()) {
                 if (documentUploaded) {
                     if (turnOverEdit.getText().toString().length() == 0
                             || Integer.parseInt(turnOverEdit.getText().toString()) == 0) {
-
                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                         builder.setMessage("Values that you have entered are less than our plan for this you have to provide use the  additional detail at the bottom of the page.")
                                 .setCancelable(false)
@@ -12188,27 +12601,22 @@ public class ReviewFragment extends Fragment {
                                             public void run() {
                                                 brokerageScroll.fullScroll(View.FOCUS_DOWN);
                                             }
-                                        });
-                                    }
+                                        }); }
                                 });
                         AlertDialog alert = builder.create();
                         alert.show();
-
-                    } else {
+                    }else{
                         setBrokerage();
                         bottomSheetBehaviorBrockrage.setState(BottomSheetBehavior.STATE_HIDDEN);
-
                     }
-                } else {
+                }else{
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setMessage("Please upload old contract note to save brokerage.")
                             .setCancelable(false)
                             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    //do things
                                     dialog.dismiss();
                                     brokerageScroll.fullScroll(View.FOCUS_DOWN);
-
                                     brokerageScroll.post(new Runnable() {
                                         @Override
                                         public void run() {
@@ -12225,21 +12633,13 @@ public class ReviewFragment extends Fragment {
                 setBrokerage();
                 bottomSheetBehaviorBrockrage.setState(BottomSheetBehavior.STATE_HIDDEN);
             }
-
-
-        } else if (bottomSheetBehaviorAdditionDoc.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-
+        }else if(bottomSheetBehaviorAdditionDoc.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             System.out.println("OPEN>>" + "bottomSheetBehaviorAdditionDoc");
-
-        } else if (bottomSheetBehaviorAddNominee.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-
+        }else if (bottomSheetBehaviorAddNominee.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             System.out.println("OPEN>>" + "bottomSheetBehaviorAddNominee");
-
-        } else if (bottomSheetBehaviorAddNominees.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-
+        }else if (bottomSheetBehaviorAddNominees.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             System.out.println("OPEN>>" + "bottomSheetBehaviorAddNominees");
-
-        } else {
+        }else {
             String currentStatu = currentstatus;
 
             System.out.println("NewAddressScreen:" + "currentStatu" + currentStatu);
@@ -12295,45 +12695,7 @@ public class ReviewFragment extends Fragment {
                     openAaadharQuestionDialog(getActivity());
 
                 } else {
-
-//                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-//                        builder.setMessage("eSign form is already generated. You really want to generate again ?")
-//                                .setCancelable(false)
-//                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-//                                    public void onClick(DialogInterface dialog, int id) {
-//                                        openAaadharQuestionDialog(getActivity());
-//
-//                                    }
-//                                });
-////                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
-////                                public void onClick(DialogInterface dialog, int id) {
-////                                    Intent in = new Intent(getActivity(),
-////                                          SaveClientCode.class);
-////                                      in.putExtra("file", pdfFile);
-////                                    startActivity(in);
-////                                    dialog.cancel();
-////                                }
-////                            });
-//                        AlertDialog alert = builder.create();
-//                        alert.show();
-
-
-//                    if (stateId.equals("8") && eSign)
-//                    {
-//                        Intent intent = new Intent(getActivity(),SaveClientCode.class);
-//                        startActivity(intent);
-//                    }
-
-
-                }
-            }
-
-                    /* NewEntryFragment.step9Line.setBackgroundColor(Color.parseColor("#19e9b5"));
-                    TabLayout tabhost = (TabLayout) getActivity().findViewById(R.id.tabs);
-                    tabhost.getTabAt(6).select();
-                   */
-        }
-    }
+                } } } }
 
 
     public void GeteSignSourceDetails() {
@@ -12482,10 +12844,7 @@ public class ReviewFragment extends Fragment {
                         TabLayout tabhost = (TabLayout) getActivity().findViewById(R.id.tabs);
                         tabhost.getTabAt(6).select();
                     }
-
-                }
-
-            }
+                } }
         });
 
         dialog.show();
@@ -13090,6 +13449,7 @@ public class ReviewFragment extends Fragment {
 
                                         //nomineeImage_first=false,nomineeImage_second=false,nomineeImage_third=false;
                                         nomineeImage_first=true;
+                                        exist_nomineimage1=false;
                                         value=1;
                                         nominee_oneImageview.setVisibility(View.VISIBLE);
                                         nominee_oneImageview.setImageBitmap(decodeUri(photoURI));
@@ -13121,26 +13481,17 @@ public class ReviewFragment extends Fragment {
                                     alert.show();
                                 }else{
                                     try {
-
-                                        //nomineeImage_first=false,nomineeImage_second=false,nomineeImage_third=false;
-                                        //nomineeImage_first=true;
                                         nomineeGurdianImage_first=true;
+                                        exist_gurdianimage1=false;
                                         gurdian_imageview.setVisibility(View.VISIBLE);
                                         gurdian_imageview.setImageBitmap(decodeUri(photoURI));
                                         gurdian_imageview.setImageBitmap(decodeUri(photoURI));
-
-                                        //userIncomeProofImageBox.setImageBitmap(decodeUriTempBankStatement(photoURI));
-
                                     }catch(FileNotFoundException e) {
                                         e.printStackTrace();
                                     }
-                                    //isIncomeproofFileSelected = true;
-                                    //isIncomeTaxSalarySlipCancellCheque = true;
                                     System.out.println("FileSize"+ getFileSizeinKb(photoURI) + "");
-                                    //uploadDocuments("IncomeProof", "");
                                 }
                             }
-                            //GurdianNominee_Third_Image
                             else if(titleDoc.equals("GurdianNominee_Third_Image")){
                                 Guardian_Third = new File(photoURI.getPath());
                                 if (getFileSizeinKb(photoURI) > 700000) {
@@ -13149,37 +13500,23 @@ public class ReviewFragment extends Fragment {
                                             .setCancelable(false)
                                             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                                 public void onClick(DialogInterface dialog, int id) {
-                                                    //do things
                                                     dialog.dismiss();
                                                 }});
                                     AlertDialog alert = builder.create();
                                     alert.show();
                                 }else{
-                                    try {
-
-                                        //nomineeImage_first=false,nomineeImage_second=false,nomineeImage_third=false;
-                                        //nomineeImage_first=true;
+                                    try{
                                         nomineeGurdianImage_third=true;
+                                        exist_gurdianimage3=false;
                                         gurdian_imageviewthird.setVisibility(View.VISIBLE);
                                         gurdian_imageviewthird.setImageBitmap(decodeUri(photoURI));
                                         gurdian_imageviewthird.setImageBitmap(decodeUri(photoURI));
-
-                                        //userIncomeProofImageBox.setImageBitmap(decodeUriTempBankStatement(photoURI));
-
                                     }catch(FileNotFoundException e) {
                                         e.printStackTrace();
                                     }
-                                    //isIncomeproofFileSelected = true;
-                                    //isIncomeTaxSalarySlipCancellCheque = true;
                                     System.out.println("FileSize"+ getFileSizeinKb(photoURI) + "");
-                                    //uploadDocuments("IncomeProof", "");
-                                }
-                            }
-
-
-
-
-                            //GurdianNominee_Second_Image
+                                     }
+                               }
                             else if(titleDoc.equals("GurdianNominee_Second_Image")){
                                 Guardian_Second = new File(photoURI.getPath());
                                 if (getFileSizeinKb(photoURI) > 700000) {
@@ -13188,36 +13525,23 @@ public class ReviewFragment extends Fragment {
                                             .setCancelable(false)
                                             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                                 public void onClick(DialogInterface dialog, int id) {
-                                                    //do things
                                                     dialog.dismiss();
                                                 }});
                                     AlertDialog alert = builder.create();
                                     alert.show();
                                 }else{
                                     try{
-                                        //nomineeImage_first=false,nomineeImage_second=false,nomineeImage_third=false;
-                                        //nomineeImage_first=true;
                                         nomineeGurdianImage_second=true;
+                                        exist_gurdianimage2=false;
                                         gurdian_Second_imageview.setVisibility(View.VISIBLE);
                                         gurdian_Second_imageview.setImageBitmap(decodeUri(photoURI));
                                         gurdian_Second_imageview.setImageBitmap(decodeUri(photoURI));
 
-                                        //userIncomeProofImageBox.setImageBitmap(decodeUriTempBankStatement(photoURI));
-
                                     }catch(FileNotFoundException e) {
                                         e.printStackTrace();
                                     }
-                                    //isIncomeproofFileSelected = true;
-                                    //isIncomeTaxSalarySlipCancellCheque = true;
                                     System.out.println("FileSize"+ getFileSizeinKb(photoURI) + "");
-                                    //uploadDocuments("IncomeProof", "");
-                                }
-                            }
-
-
-
-
-
+                                }}
                             //Nominee_Second,Nominee_Third
                             else if(titleDoc.equals("Nominee_Second")){
                                 Nominee_Second = new File(photoURI.getPath());
@@ -13235,6 +13559,7 @@ public class ReviewFragment extends Fragment {
                                 }else{
                                     try {
                                         nomineeImage_second=true;
+                                        exist_nomineimage2=false;
                                         second_nominee_image.setVisibility(View.VISIBLE);
                                         second_nominee_image.setImageBitmap(decodeUri(photoURI));
                                         second_nominee_image.setImageBitmap(decodeUri(photoURI));
@@ -13263,19 +13588,19 @@ public class ReviewFragment extends Fragment {
                                     alert.show();
                                 }else{
                                     try {
+
                                         nomineeImage_third=true;
+                                        exist_nomineimage3=false;
                                         Third_nominee_image.setVisibility(View.VISIBLE);
                                         Third_nominee_image.setImageBitmap(decodeUri(photoURI));
                                         Third_nominee_image.setImageBitmap(decodeUri(photoURI));
-                                        //userIncomeProofImageBox.setImageBitmap(decodeUriTempBankStatement(photoURI));
 
                                     }catch(FileNotFoundException e) {
                                         e.printStackTrace();
                                     }
-                                    //isIncomeproofFileSelected = true;
-                                    //isIncomeTaxSalarySlipCancellCheque = true;
+
                                     System.out.println("FileSize"+ getFileSizeinKb(photoURI) + "");
-                                    //uploadDocuments("IncomeProof", "");
+
                                 }}
 
 
@@ -13300,24 +13625,18 @@ public class ReviewFragment extends Fragment {
 //                        calldata(data);
 
                             System.out.println("URIL" + filePath.toString() + "");
-
-
                             System.out.println("FilePath" + selectedFilePath + "");
                             if (selectedFilePath != null) {
                                 PDFfile = new File(selectedFilePath);
                             }
-
-
                             try {
                                 isPasswordProtected = false;
                                 PdfReader pdfReader = new PdfReader(String.valueOf(PDFfile));
                                 pdfReader.isEncrypted();
-
                                 long fileSizeInBytes = PDFfile.length();
-// Convert the bytes to Kilobytes (1 KB = 1024 Bytes)
                                 fileSizeInKB = fileSizeInBytes / 1024;
-// Convert the KB to MegaBytes (1 MB = 1024 KBytes)
                                 fileSizeInMB = fileSizeInKB / 1024;
+
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 if (e.getMessage().toString().equals("Bad user password")) {
@@ -13393,19 +13712,10 @@ public class ReviewFragment extends Fragment {
                                     BankBox1Image.setImageDrawable(getResources().getDrawable(R.mipmap.new_pdf_image));
                                     uploadDocuments("BankStatementPdf", "");
                                 }
-
-                            } else {
-
+                            }else{
                                 Toast.makeText(getActivity(), "PDF is null", Toast.LENGTH_SHORT).show();
-
-                            }
-
+                            }}}}}
                         }
-
-                    }
-                }
-        }
-    }
 
     private void openPasswordProtectedDiloagAdditioanlDocTwo() {
         pdfAlertDialog = new AlertDialog.Builder(getActivity());
@@ -13650,7 +13960,6 @@ public class ReviewFragment extends Fragment {
     }
 
     private void uploadDocuments(String note) {
-
         getRes = new getResponse(getActivity());
         getRes.Uploadadditional(tempHoldImageView,
                 "" + WebServices.getBaseURL + WebServices.uploadAdditionalOneURL + "?documentType=BrokerageDocument",
@@ -13697,10 +14006,10 @@ public class ReviewFragment extends Fragment {
         BitmapFactory.decodeStream(
                 getActivity().getContentResolver().openInputStream(selectedImage), null, o);
 
-        // The new size we want to scale to
+        //The new size we want to scale to
         final int REQUIRED_SIZE = 500;
 
-        // Find the correct scale value. It should be the power of 2.
+        //Find the correct scale value. It should be the power of 2.
         int width_tmp = o.outWidth, height_tmp = o.outHeight;
         int scale = 1;
         while (true) {
@@ -13712,7 +14021,7 @@ public class ReviewFragment extends Fragment {
             scale *= 2;
         }
 
-        // Decode with inSampleSize
+        //Decode with inSampleSize
         BitmapFactory.Options o2 = new BitmapFactory.Options();
         o2.inSampleSize = scale;
         return BitmapFactory.decodeStream(
@@ -13725,65 +14034,47 @@ public class ReviewFragment extends Fragment {
 
             tempHoldImageView.buildDrawingCache();
             Bitmap bmap = tempHoldImageView.getDrawingCache();
-
             Bitmap bitmap = null;
             bitmap = decodeUriTemp(uri);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
             byte[] bitmapdata = bos.toByteArray();
-
-            try {
-
+            try{
                 //write the bytes in file
                 FileOutputStream fos = new FileOutputStream(f);
                 fos.write(bitmapdata);
                 fos.flush();
                 fos.close();
                 System.out.println("fileSize>>>." + f.length() + "");
-            } catch (IOException e) {
+            }catch (IOException e) {
                 e.printStackTrace();
             }
 
-        } catch (FileNotFoundException e) {
+        }catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
-        if (f != null) {
-
-
-            if (f.length() > 700000) {
-
+        if(f != null){
+            if(f.length() > 700000) {
                 System.out.println("BeforeLength<<<" + f.length() + "");
-
                 File compressedImageFile = null;
                 try {
                     compressedImageFile = new Compressor(getActivity()).compressToFile(f);
                     tempHoldImageView.setImageBitmap(new Compressor(getActivity()).compressToBitmap(f));
                     System.out.println("AfterLength<<<" + compressedImageFile.length() + "");
                     return compressedImageFile.length();
-                } catch (IOException e) {
+                }catch (IOException e) {
                     return f.length();
                 }
-
-
-            } else {
-
-                return f.length();
-            }
-
-        } else {
+            }else{
+                return f.length(); }
+        }else{
             return 0;
         }
-
-
     }
 
     private void beginCrop(Uri photoURI) {
-
         Uri destination = Uri.fromFile(new File(getActivity().getCacheDir(), ".jpg"));
-
         Crop.of(photoURI, destination).withMaxSize(2000, 2000).start(getActivity(), ReviewFragment.this);
-
         //Crop.of(source, destination).withAspect(480, 320).withMaxSize(1024,720).start(getActivity(), user_FileUpload.this);
 
     }
@@ -14527,7 +14818,15 @@ public class ReviewFragment extends Fragment {
         nominee_input_box_new = getActivity().findViewById(R.id.nominee_input_box_new);
         nominee_address_different = getActivity().findViewById(R.id.nominee_address_different);
         nominee_address_different_new = getActivity().findViewById(R.id.nominee_address_different_new);
+
+        //,
+
         nominee_address_different_news = getActivity().findViewById(R.id.nominee_address_different_news);
+
+        nominee_address_different_news2 = getActivity().findViewById(R.id.nominee_address_different_news2);
+        nominee_address_different_news3 = getActivity().findViewById(R.id.nominee_address_different_news3);
+
+
         lMainGardian = getActivity().findViewById(R.id.lMainGardian);
         lMainGardian_new = getActivity().findViewById(R.id.lMainGardian_new);
         incomeDocLayout = getActivity().findViewById(R.id.incomeDocLayout);
@@ -14673,7 +14972,7 @@ public class ReviewFragment extends Fragment {
         past_action_specification_edt = getActivity().findViewById(R.id.past_action_specification_edt);
         past_action_specification_edt.setVisibility(View.GONE);
 
-        sub_broker_name_edt = getActivity().findViewById(R.id.sub_broker_name_edt);
+      sub_broker_name_edt = getActivity().findViewById(R.id.sub_broker_name_edt);
         stock_broker_name = getActivity().findViewById(R.id.stock_broker_name);
         sub_broker_authorised_person_edt = getActivity().findViewById(R.id.sub_broker_authorised_person_edt);
         sub_broker_exchange_name_edt = getActivity().findViewById(R.id.sub_broker_exchange_name_edt);
@@ -14932,7 +15231,9 @@ public class ReviewFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+
                     nominee_address_different_news.setVisibility(View.VISIBLE);
+
                 }else{
                     nominee_address_different_news.setVisibility(View.GONE);
                 }
@@ -16037,47 +16338,13 @@ public class ReviewFragment extends Fragment {
 
                             dialog.dismiss();
 
-//                            acProgressFlower = new ACProgressFlower.Builder(getActivity())
-//                                    .direction(ACProgressConstant.DIRECT_CLOCKWISE)
-//                                    .themeColor(WHITE)
-//
-//                                    .fadeColor(DKGRAY).build();
-//                            acProgressFlower.show();
-//                            Log.d("pdfFileSign",emudraPdfPath+"====");
-//                            Intent intent = new Intent(getActivity(),EmudraActivity.class);
-                            //Intent intent = new Intent(getActivity(),EMudraEsignActivity.class);
-                            //  intent.putExtra("SinghPDFURL",emudraPdfPath);
-                            //  intent.putExtra("CustomerName",customerName);
+
 
                             Intent i = new Intent(getActivity(), EmudraActivity.class);
                             // i.putExtra("encryptFile", base64_data);
                             i.putExtra("EkycId", AppInfo.ekycApplicationId);
                             i.putExtra("customerName", newCustomerFullName);
                             startActivity(i);
-
-
-//
-//                                    try {
-//                                        HashMap<String, Object> parameters;
-//
-//
-//                                        parameters = new HashMap<String, Object>();
-//                                        parameters.put("EkycId", AppInfo.ekycApplicationId);
-//                                        parameters.put("CustomerName", customerName);
-//                                        parameters.put("CreatedBy", AppInfo.RM_ID);
-//                                        parameters.put("SuccessUrl", "https://localhost:6644/Success");
-//                                        parameters.put("ErrorUrl", "https://localhost:6644/Failure");
-//                                        parameters.put("CancelUrl", "https://localhost:6644/Failure");
-//                                        getRes.getResponseFromURL(
-//                                                "http://183.182.86.91:13981/api/emSigner/GetInfoForSignerGatewayService",
-//                                                "ESIGN_FOR_EMUDRA",
-//                                                parameters, "POST");
-//
-//                                    } catch (Exception ex) {
-//
-//                                        System.out.println("ExceptionOnCall", ex.getMessage());
-//                                    }
-
 
                         } else {
 
@@ -16094,12 +16361,12 @@ public class ReviewFragment extends Fragment {
                             alert.show();
 
                         }
-                     }
-                   });
+                    }
+                });
                 dialog.show();
-              }
-         }, 1000);
-        }
+            }
+        }, 1000);
+    }
     private byte[] loadFile(File pdf_path_str) throws IOException {
         Log.d("loadFile", "called");
         BufferedInputStream reader = new BufferedInputStream(new FileInputStream(pdf_path_str));
@@ -16233,6 +16500,3 @@ public class ReviewFragment extends Fragment {
     }
 
 }
-
-
-
