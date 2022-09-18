@@ -1,0 +1,64 @@
+
+
+//create model of postlist in model class
+
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:apiintigration/models/PostModel.dart';
+import 'package:flutter/material.dart';
+
+
+class apiintigrae extends StatefulWidget {
+  const apiintigrae({Key? key}) : super(key: key);
+
+  @override
+  State<apiintigrae> createState() => _apiintigrae();
+   }
+
+class _apiintigrae extends State<apiintigrae> {
+
+  late List<PostModel>postlist=[];
+
+  Future<List<PostModel>>getpostapi() async{
+      final response=await http.get(Uri.parse("https://jsonplaceholder.typicode.com/posts"));
+    var data=jsonDecode(response.body.toString());
+      print("Object=>"+response.statusCode.toString());
+      print("Response_Data=>"+response.body);
+    if(response.statusCode==200){
+      for(Map i in data) {
+
+        postlist.add(PostModel.fromJson(i));
+        }
+        return postlist;
+          }else{
+        return postlist;
+       }
+      }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Api Intigration"),),
+      body: Column(
+        children: [
+          Expanded(
+         child:
+          FutureBuilder(
+            future: getpostapi(),
+            builder: (context , snapshot){
+              if(!snapshot.hasData){
+                return Text("Loading");
+              }else{
+          return ListView.builder(
+              itemCount: postlist.length,
+              itemBuilder: (context,index){
+            return Text(postlist[index].title.toString());
+            });
+              }
+              },
+            ))
+           ],),
+         );
+        }
+       }
